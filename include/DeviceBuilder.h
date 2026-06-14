@@ -8,7 +8,7 @@
 #include <type_traits>
 #include "../include/DataEntry.h"
 
-namespace dlib::communication
+namespace dlnk
 {
     class ManifestBuilder;
 
@@ -112,4 +112,4 @@ namespace dlib::communication
         ManifestBuilder* parentptr;
     };
 
-} // namespace dlib::communication
+} // namespace dlnk

@@ -6,9 +6,9 @@
 #include <iostream>
 #include <variant>
 #include "../include/SerializeHelper.h"
-#include "../../include/PortabilityHelper.h"
+#include "../include/PortabilityHelper.h"
 
-namespace dlib::communication
+namespace dlnk
 {
 
 typedef enum : Byte {
@@ -36,31 +36,31 @@ static void PrintDataType(DataType dt)
     switch (dt)
     {
     case DataType::BOOL:
-        dlib::print_t("boolean"); break;
+        print_t("boolean"); break;
     case DataType::UINT8:
-        dlib::print_t("uint8_t"); break;
+        print_t("uint8_t"); break;
     case DataType::UINT16:
-        dlib::print_t("uint16_t"); break;
+        print_t("uint16_t"); break;
     case DataType::UINT32:
-        dlib::print_t("uint32_t"); break;
+        print_t("uint32_t"); break;
     case DataType::UINT64:
-        dlib::print_t("uint64_t"); break;
+        print_t("uint64_t"); break;
     case DataType::INT8:
-        dlib::print_t("int8_t"); break;
+        print_t("int8_t"); break;
     case DataType::INT16:
-        dlib::print_t("int16_t"); break;
+        print_t("int16_t"); break;
     case DataType::INT32:
-        dlib::print_t("int32_t"); break;
+        print_t("int32_t"); break;
     case DataType::INT64:
-        dlib::print_t("int64_t"); break;
+        print_t("int64_t"); break;
     case DataType::FLOAT:
-        dlib::print_t("float"); break;
+        print_t("float"); break;
     case DataType::DOUBLE:
-        dlib::print_t("double"); break;
+        print_t("double"); break;
     case DataType::STRING:
-        dlib::print_t("string"); break;
+        print_t("string"); break;
     default:
-        dlib::print_t("unknown"); break;
+        print_t("unknown"); break;
     }
 }
 
@@ -119,6 +119,6 @@ typedef std::variant<DataEntry<bool>,
                      > DataEntryVariant;
 
 
-}; // namespace: dlib::communication
+}; // namespace: dlnk
 
 #include "../cpp/DataEntry_imp.h"

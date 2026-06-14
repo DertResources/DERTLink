@@ -6,9 +6,9 @@
 
 #include "../include/InitalizationGroup.h"
 #include "../include/SerializeHelper.h"
-#include "../../include/PortabilityHelper.h"
+#include "../include/PortabilityHelper.h"
 
-namespace dlib::communication
+namespace dlnk
 {
 class DeviceDictonary; // forward declaration
 
@@ -59,4 +59,4 @@ public:
     }
 };
 
-}; // namespace: dlib::communication
+}; // namespace: dlnk

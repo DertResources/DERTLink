@@ -1,6 +1,6 @@
 #include "../include/Device.h"
 
-namespace dlib::communication
+namespace dlnk
 {
 
 Device::Device(std::string _devicename)
@@ -18,8 +18,8 @@ void Device::WriteToBuffer(ByteVector& byteBuffer)
             return sum + group.getDataEntryVector().size();
         }
     );
-    write_u16_be(byteBuffer, static_cast<uint16_t>(totalEntries));
-    write_string(byteBuffer, deviceName);
+    serial::write_u16_be(byteBuffer, static_cast<uint16_t>(totalEntries));
+    serial::write_string(byteBuffer, deviceName);
     for (InitalizationGroup& initGroupEntry : initalizationGroupVector)
     {
         for(DataEntryVariant& entry : initGroupEntry.getDataEntryVector())
@@ -32,8 +32,8 @@ void Device::WriteToBuffer(ByteVector& byteBuffer)
 
 void Device::ReadFromBuffer(const Byte*& cur)
 {
-    size_t DataEntryCount = read_u16_be(cur);
-    deviceName = read_string(cur);
+    size_t DataEntryCount = serial::read_u16_be(cur);
+    deviceName = serial::read_string(cur);
     initalizationGroupVector.clear();
     this->AddIntializationGroup("Flattened Data Entry List");
     for (size_t pos = 0; pos < DataEntryCount; pos++)
@@ -51,12 +51,12 @@ void Device::ReadFromBuffer(const Byte*& cur)
 void Device::Print(uint8_t tabs)
 {
     std::string tabString = std::string(tabs*2, ' ');
-    dlib::print_t( tabString + "\033[91mDevice Name: \"" + deviceName + "\"\n");
-    dlib::print_t( tabString + "[\033[m\n");
+    print_t( tabString + "\033[91mDevice Name: \"" + deviceName + "\"\n");
+    print_t( tabString + "[\033[m\n");
     for (auto entry : initalizationGroupVector) {
         entry.Print(tabs+1);
     }
-    dlib::print_t(tabString + "\033[91m]\033[m\n");
+    print_t(tabString + "\033[91m]\033[m\n");
 }
 
-}; // namespace dlib::communication
+}; // namespace dlnk

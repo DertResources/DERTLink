@@ -5,7 +5,7 @@
 #include <functional>
 #include <string>
 
-namespace dlib::communication
+namespace dlnk
 {
 class Device; // forward declaration
 
@@ -67,4 +67,4 @@ public:
     }
 };
 
-}; // namespace: dlib::communication
+}; // namespace: dlnk

@@ -2,15 +2,17 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <cstring>
+#include <iostream>
 
-
-namespace dlib::communication
+namespace dlnk
 {
-static constexpr size_t DLIB_MAX_STRING_LENGTH = 256;
 
 typedef uint8_t Byte;
 typedef std::vector<Byte> ByteVector;
 
+namespace serial
+{
 // write 8,16,32,64
 inline void write_u8_be(ByteVector& buf, uint8_t v)
 {
@@ -135,12 +137,21 @@ inline void write_double_be(ByteVector& buf, double v)
 
 inline void write_string(ByteVector& buf, const std::string& v)
 {
+    std::string adjusted_v = v;
     size_t len = v.length();
-    for (size_t pos = 0; pos < len && pos < DLIB_MAX_STRING_LENGTH; pos++)
+    if (len > 255)
     {
-        buf.push_back(static_cast<Byte>(v[pos]));
+        std::cout << "Write_String: String truncated, max size 255 charaters, current size is "
+                  << len << " characters" << std::endl;
+        adjusted_v = adjusted_v.substr(0, 255);
+        len = 255;
     }
-    buf.push_back(static_cast<Byte>('\0'));
+
+    write_u8_be(buf, static_cast<uint8_t>(len));
+    for (size_t pos = 0; pos < len; pos++)
+    {
+        buf.push_back(static_cast<Byte>(adjusted_v[pos]));
+    }
 }
 // // // // // // // // // // // // // // // // // // // // // 
 // READ
@@ -169,13 +180,12 @@ inline double read_double_be(const Byte*& cur)
 
 inline std::string read_string(const Byte*& cur)
 {
-    std::string out;
-
-    for(size_t pos = 0;
-        static_cast<char>(cur[pos]) != '\0' && pos < DLIB_MAX_STRING_LENGTH;
-        out.push_back(static_cast<char>(cur[pos])), pos++);
-    cur = &cur[out.length()+1];
+    uint8_t len = read_u8_be(cur);
+    std::string out(reinterpret_cast<const char*>(cur), len);
+    cur += len;
     return out;
 }
 
-}; // namespace: dlib::communication
+}; // namespace: serial
+
+}; // namespace: dlnk

@@ -8,7 +8,7 @@
 
 #include "../include/SerializeHelper.h"
 
-namespace dlib::communication
+namespace dlnk
 {
 
 class DeviceDictonary
@@ -133,4 +133,4 @@ private:
     std::deque<Device> Devices;
 };
 
-}; // namespace: dlib::communication
+}; // namespace: dlnk
