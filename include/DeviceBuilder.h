@@ -32,11 +32,10 @@ namespace dlnk
     {
         EntryManifest(std::string _entryName,
             std::optional<EntryDataVariant> _entryData)
-            : entryName{ _entryName },
-            entryData{ _entryData },
-            entryType{ std::nullopt }
-        {
-        }
+            : entryName{ _entryName }
+            , entryData{ _entryData }
+            , entryType{ std::nullopt }
+        {}
 
         std::string entryName;
         std::optional<EntryDataVariant> entryData;
@@ -47,69 +46,38 @@ namespace dlnk
     {
     public:
         DeviceBuilder(std::string _DeviceName, ManifestBuilder* _parentptr)
-        {
-            DeviceName = _DeviceName;
-            parentptr = _parentptr;
-        }
+            : DeviceName{_DeviceName}
+            , parentptr{_parentptr}
+        {}
 
-        inline DeviceBuilder& AssignData(std::string DataEntryName)
-        {
-            entryManifests.emplace_back(DataEntryName, std::nullopt);
-            return *this;
-        }
+        inline DeviceBuilder& AssignData(std::string DataEntryName) { entryManifests.emplace_back(DataEntryName, std::nullopt); return *this; }
 
         // Exact variant type match
         template<typename T, std::enable_if_t<
             is_variant_member_v<T, EntryDataVariant> &&
             !std::is_convertible_v<T, std::string>, int> = 0 >
-            inline DeviceBuilder & AssignData(std::string DataEntryName, T value)
-        {
-            entryManifests.emplace_back(DataEntryName, value);
-            return *this;
-        }
+        inline DeviceBuilder & AssignData(std::string DataEntryName, T value) { entryManifests.emplace_back(DataEntryName, value); return *this; }
 
         // String and const char* 
         template<typename T, std::enable_if_t<
             std::is_convertible_v<T, std::string>, int> = 0 >
-            inline DeviceBuilder & AssignData(std::string DataEntryName, T value)
-        {
-            entryManifests.emplace_back(DataEntryName, std::string(value));
-            return *this;
-        }
+        inline DeviceBuilder & AssignData(std::string DataEntryName, T value) { entryManifests.emplace_back(DataEntryName, std::string(value)); return *this; }
 
         // int literals -> int32_t
-        inline DeviceBuilder& AssignData(std::string DataEntryName, int value)
-        {
-            entryManifests.emplace_back(DataEntryName, static_cast<int32_t>(value));
-            return *this;
-        }
+        inline DeviceBuilder& AssignData(std::string DataEntryName, int value) { entryManifests.emplace_back(DataEntryName, static_cast<int32_t>(value)); return *this; }
 
         // bool explicit overload (prevents bool -> int ambiguity)
-        inline DeviceBuilder& AssignData(std::string DataEntryName, bool value)
-        {
-            entryManifests.emplace_back(DataEntryName, value);
-            return *this;
-        }
+        inline DeviceBuilder& AssignData(std::string DataEntryName, bool value) { entryManifests.emplace_back(DataEntryName, value); return *this; }
 
-        inline ManifestBuilder& ExitDeviceBuilder()
-        {
-            return *parentptr;
-        }
+        inline ManifestBuilder& ExitDeviceBuilder() { return *parentptr; }
 
-        inline std::vector<EntryManifest>& GetEntryManifests()
-        {
-            return entryManifests;
-        }
+        inline std::vector<EntryManifest>& GetEntryManifests() { return entryManifests; }
 
-        inline std::string GetDeviceName() const
-        {
-            return DeviceName;
-        }
+        inline std::string GetDeviceName() const { return DeviceName; }
 
     private:
         std::string DeviceName;
         std::vector<EntryManifest> entryManifests;
         ManifestBuilder* parentptr;
     };
-
 } // namespace dlnk
