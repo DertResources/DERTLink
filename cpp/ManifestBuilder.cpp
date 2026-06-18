@@ -1,5 +1,19 @@
 #include "../include/ManifestBuilder.h"
 
+#include <string>
+#include <algorithm>
+#include <variant>
+#include <cstdint>
+#include <type_traits>
+#include <iostream>
+#include <deque>
+#include <vector>
+
+#include "../include/DeviceBuilder.h"
+#include "../include/DeviceDictonary.h"
+#include "../include/DataEntry.h"
+#include "../include/InitalizationGroup.h"
+
 namespace dlnk
 {
 
@@ -11,42 +25,38 @@ DeviceBuilder& ManifestBuilder::BuildNewDevice(std::string deviceName)
 
 bool ManifestBuilder::ValidateManifest()
 {
-    ShortDevVector ShortDevDict;
-    DeviceDictonary::FillShortDevVector(*DD, ShortDevDict);
-    DeviceDictonary::SortShortDevVector(ShortDevDict);
-
     return std::all_of(deviceManifests.begin(), deviceManifests.end(),
     [&](DeviceBuilder& db) -> bool {
         // find device
-        ShortDev devDict;
-        if (!DeviceDictonary::FindShortDevice(ShortDevDict, devDict, db.GetDeviceName())) {
+        ShortDev DeviceMatch;
+        if (!DeviceDictonary::FindShortDevice(shortDeviceDictonary, DeviceMatch, db.GetDeviceName()))
             return false;
-        }
         // check every device entry
-        bool valid = true;
-        std::for_each(db.GetEntryManifests().begin(), db.GetEntryManifests().end(),
-        [&](EntryManifest& em) {
+        return std::all_of(db.GetEntryManifests().begin(), db.GetEntryManifests().end(),
+        [&](EntryManifest& em) -> bool{
             // find entry
-            DataEntryPtr deviceMatch;
-            if(!DeviceDictonary::FindShortDataEntry(devDict, deviceMatch, em.entryName)) { 
-                valid = false;
-                return;
-            }
-            // validate
-            // entryData has 
-            if (IsInit(em)) {
-                if (!CheckTypeMatching(em, deviceMatch)) {
-                    DataTypeError(deviceMatch);
-                    valid = false;
-                }
-                ConvertDataTypes(em, deviceMatch);
-            }
-            if (!CheckDataDirection(deviceMatch)) {
+            DataEntryPtr dataEntryMatch;
+            if(!DeviceDictonary::FindShortDataEntry(DeviceMatch, dataEntryMatch, em.entryName))
+                return false;
+            if (!CheckDataDirection(dataEntryMatch)) {
                 DataDirectionError();
-                valid = false;
+                return false;
             }
+            return DataDirectionSwitch(em, dataEntryMatch, [&](){ //Init
+                if (!CheckTypeMatching(em, dataEntryMatch)) {
+                    DataTypeError(dataEntryMatch);
+                    return false;
+                }
+                ConvertDataTypes(em, dataEntryMatch);
+                return true;
+            },[&](){ //Desired
+                AllocateDataDesiredState(em);
+                return true;
+            },[&](){ //Feedback
+                AllocateDataFeedback(em);
+                return true;
+            }); 
         });
-        return valid;
     });
 }
 
@@ -56,38 +66,27 @@ bool ManifestBuilder::CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep)
         return std::visit(overloaded {
             [&](std::string value) -> bool {
                 return de.GetDataType() == DataType::STRING;
-            },
-            [&](bool value) -> bool {
+            }, [&](bool value) -> bool {
                 return de.GetDataType() == DataType::BOOL;
-            },
-            [&](double value) -> bool {
+            }, [&](double value) -> bool {
                 return (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](float value) -> bool {
+            }, [&](float value) -> bool {
                 return (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](int64_t value) -> bool {
+            }, [&](int64_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](int32_t value) -> bool {
+            }, [&](int32_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](int16_t value) -> bool {
+            }, [&](int16_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](int8_t value) -> bool {
+            }, [&](int8_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](uint8_t value) -> bool {
+            }, [&](uint8_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](uint16_t value) -> bool {
+            }, [&](uint16_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](uint32_t value) -> bool {
+            }, [&](uint32_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
-            },
-            [&](uint64_t value) -> bool {
+            }, [&](uint64_t value) -> bool {
                 return (de.GetDataType() == DataType::UINT8) || (de.GetDataType() == DataType::UINT16) || (de.GetDataType() == DataType::UINT32) || (de.GetDataType() == DataType::UINT64) || (de.GetDataType() == DataType::INT8) || (de.GetDataType() == DataType::INT16) || (de.GetDataType() == DataType::INT32) || (de.GetDataType() == DataType::INT64) || (de.GetDataType() == DataType::FLOAT) || (de.GetDataType() == DataType::DOUBLE);
             }
         }, em.entryData.value());
@@ -164,5 +163,83 @@ void ManifestBuilder::DataDirectionError()
 {
     std::cout << "Data Direction Wrong" << std::endl;
 }
+
+void ManifestBuilder::AllocateDataFeedback(EntryManifest& em)
+{
+
+}
+
+void ManifestBuilder::AllocateDataDesiredState(EntryManifest& em)
+{
+
+}
+
+void ManifestBuilder::InitalizeControlObjects()
+{
+    // for every device in the manifest
+    std::for_each(deviceManifests.begin(), deviceManifests.end(),
+    [&](DeviceBuilder& db){
+        // make a copy of the short device
+        ShortDev sd;
+        // find the matching device in the short dict
+        DeviceDictonary::FindShortDevice(shortDeviceDictonary, sd, db.GetDeviceName());
+        // grab all initalization groups from the matching device dictonary 
+        std::deque<InitalizationGroup>& igv = sd.DevicePtr->GetInitaliztionGroupVector();
+        // then, for each initalization group
+        std::for_each(igv.begin(), igv.end(),
+        [&](InitalizationGroup& ig) {
+            // make a list of indexes that match indexes in the short entry vector
+            std::vector<int32_t> idxs;
+            // also check that every entry in each init group exists
+            if(std::all_of(ig.getDataEntryVector().begin(), ig.getDataEntryVector().end(),
+            [&](DataEntryVariant& dev) -> bool{
+                // check that each entry exists and save its index
+                return std::visit([&](auto& de) -> bool{
+                    int32_t i = DeviceDictonary::FindDataEntryIndex(sd, de.GetName());
+                    if(i != -1)
+                        idxs.push_back(i);
+                    return (i != -1);
+                }, dev);
+            }))
+            {
+                // if every entry exists, delete their pointers
+                std::sort(idxs.rbegin(), idxs.rend());
+                // erase any repetes just in case
+                idxs.erase(std::unique(idxs.begin(), idxs.end()), idxs.end());
+                std::for_each(idxs.begin(), idxs.end(),
+                [&](size_t idx){
+                    sd.GetShortDEVector().erase(sd.GetShortDEVector().begin() + idx);
+                });
+                // and run the int command
+                ig.RunInitCmd();
+            }
+        });
+    });
+}
+
+
+
+
+
+
+
+//template <typename T, typename N>
+//T ManifestBuilder::EmplaceData(std::function<T(N)> func,
+//                               std::string key,
+//                               ShortDev& shortDevice)
+//{
+//    DataEntryPtr dep;
+//    DeviceDictonary::FindShortDataEntry(shortDevice, dep, key); // assume ok
+//    std::visit([](){
+//    
+//    
+//    });
+//    // switch by data direction
+//    AllTypes variantData = ;
+//    //Get Data
+//    return std::visit([](N data) -> T {
+//        return func(data);
+//    }, variantData);
+//}
 
 }; // namespace: dlnk

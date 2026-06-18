@@ -1,5 +1,11 @@
 #include "../include/InitalizationGroup.h"
 
+#include <cstdint>
+#include <iostream>
+#include <string>
+#include <variant>
+#include "../include/DataEntry.h"
+
 namespace dlnk
 {
 

@@ -1,5 +1,14 @@
 #include "../include/Device.h"
 
+#include <string>
+#include <cstdint>
+#include <variant>
+#include <numeric>
+#include "../include/SerializeHelper.h"
+#include "../include/InitalizationGroup.h"
+#include "../include/DataEntry.h"
+#include "../include/PortabilityHelper.h"
+
 namespace dlnk
 {
 

@@ -1,5 +1,11 @@
 #pragma once
+
+#include <string>
+#include <cstdint>
 #include "../include/DataEntry.h"
+#include "../include/SerializeHelper.h"
+#include "../include/PortabilityHelper.h"
+
 namespace dlnk
 {
 template<typename T>

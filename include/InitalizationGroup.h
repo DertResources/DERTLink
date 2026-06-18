@@ -1,9 +1,12 @@
 #pragma once
-#include "../include/DataEntry.h"
 
 #include <deque>
 #include <functional>
 #include <string>
+#include <cstdint>
+#include <utility>
+#include <algorithm>
+#include "../include/DataEntry.h"
 
 namespace dlnk
 {
@@ -28,7 +31,7 @@ public:
     inline void SetDevicePtr(Device& ref) { devicePtr = &ref; }
 
     inline Device& ExitInitalizationGroup() { return *devicePtr; }
-
+    inline void RunInitCmd() { InitalizationCmd(); }
 private:
     std::deque<DataEntryVariant> GroupDataEntries;
     Device* devicePtr = nullptr;

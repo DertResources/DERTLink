@@ -1,12 +1,11 @@
 #pragma once
-#include <stdint.h>
 #include <deque>
 #include <string>
-#include <numeric>
-
+#include <type_traits>
+#include <utility>
+#include <cstdint>
 #include "../include/InitalizationGroup.h"
 #include "../include/SerializeHelper.h"
-#include "../include/PortabilityHelper.h"
 
 namespace dlnk
 {

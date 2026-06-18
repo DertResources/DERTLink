@@ -1,10 +1,14 @@
 #pragma once
 
-#include "../include/SerializeHelper.h"
-#include "../include/DataEntry.h"
 #include <deque>
 #include <algorithm>
-#include <numeric>
+#include <vector>
+#include <utility>
+#include <string>
+#include <cstdint>
+
+#include "../include/SerializeHelper.h"
+#include "../include/DataEntry.h"
 
 namespace dlnk
 {

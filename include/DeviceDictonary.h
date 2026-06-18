@@ -1,18 +1,24 @@
 #pragma once
-#include "../include/Device.h"
 
 #include <utility>
 #include <deque>
-#include <algorithm>
-#include <optional>
-
+#include "DataEntry.h"
+#include <vector>
+#include <cstdint>
+#include <string>
+#include "../include/Device.h"
 #include "../include/SerializeHelper.h"
 
 namespace dlnk
 {
 using DataEntryPtr = DataEntryVariant*;
 using ShortDEVector = std::vector<DataEntryPtr>;
-using ShortDev = std::pair<std::string, ShortDEVector>;
+struct ShortDev {
+    std::string DeviceName;
+    Device* DevicePtr;
+    ShortDEVector DeviceEntryPtrs;
+    ShortDEVector& GetShortDEVector() { return DeviceEntryPtrs; }
+};
 using ShortDevVector = std::vector<ShortDev>;
 
 class DeviceDictonary
@@ -37,7 +43,9 @@ public:
 
     static bool FindShortDevice(ShortDevVector& sdv, ShortDev& sdr, std::string targetName);
 
-    static bool FindShortDataEntry(ShortDev& sdr, DataEntryPtr& der, std::string targetName);
+    static bool FindShortDataEntry(ShortDev& sdr, DataEntryPtr& dep, std::string targetName);
+
+    static int32_t FindDataEntryIndex(ShortDev& sdr, std::string targetName);
 
 private:
     

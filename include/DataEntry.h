@@ -1,10 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <algorithm>
-#include <vector>
-#include <iostream>
 #include <variant>
+#include <type_traits>
 #include "../include/SerializeHelper.h"
 #include "../include/PortabilityHelper.h"
 
@@ -117,7 +115,6 @@ typedef std::variant<DataEntry<bool>,
                      DataEntry<double>,
                      DataEntry<std::string>
                      > DataEntryVariant;
-
 
 }; // namespace: dlnk
 
