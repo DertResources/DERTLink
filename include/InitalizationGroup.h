@@ -6,11 +6,20 @@
 #include <cstdint>
 #include <utility>
 #include <algorithm>
+#include <vector>
+#include <any>
 #include "../include/DataEntry.h"
+#include "../include/DynamicBuffer.h"
+#include "../include/DeviceBuilder.h"
 
 namespace dlnk
 {
-class Device; // forward declaration
+// forward declarations
+class Device; 
+class ManifestBuilder;
+struct ShortDev;
+
+using InitFuncType = std::function<void(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
 
 class InitalizationGroup
 {
@@ -22,7 +31,11 @@ public:
     template<typename T>
     inline InitalizationGroup& AddDataEntry(std::string _name, DataDirection _direction) { GroupDataEntries.push_back(std::move(DataEntry<T>(_name, _direction))); return *this; }
 
-    InitalizationGroup& SetInitalizationCmd(std::function<void()> func) { InitalizationCmd = std::move(func); return *this; }
+    InitalizationGroup& SetInitalizationCmd(InitFuncType func)
+    {
+        InitalizationCmd = std::move(func);
+        return *this;
+    }
 
     inline std::deque<DataEntryVariant>& getDataEntryVector() { return GroupDataEntries; }
     
@@ -31,11 +44,12 @@ public:
     inline void SetDevicePtr(Device& ref) { devicePtr = &ref; }
 
     inline Device& ExitInitalizationGroup() { return *devicePtr; }
-    inline void RunInitCmd() { InitalizationCmd(); }
+    inline void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db) { InitalizationCmd(obj, sd, dbf, dbd, db); }
+    inline std::string GetName() { return GroupName; }
 private:
     std::deque<DataEntryVariant> GroupDataEntries;
     Device* devicePtr = nullptr;
-    std::function<void()> InitalizationCmd;
+    InitFuncType InitalizationCmd;
     std::string GroupName;
 };
 

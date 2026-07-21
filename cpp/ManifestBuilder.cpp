@@ -8,11 +8,13 @@
 #include <iostream>
 #include <deque>
 #include <vector>
-
+#include <any>
+#include <optional>
 #include "../include/DeviceBuilder.h"
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
 #include "../include/InitalizationGroup.h"
+#include "../include/RuntimeControlObject.h"
 
 namespace dlnk
 {
@@ -179,10 +181,12 @@ void ManifestBuilder::InitalizeControlObjects()
     // for every device in the manifest
     std::for_each(deviceManifests.begin(), deviceManifests.end(),
     [&](DeviceBuilder& db){
+        std::optional<std::any> createInfoCursor;
         // make a copy of the short device
         ShortDev sd;
         // find the matching device in the short dict
         DeviceDictonary::FindShortDevice(shortDeviceDictonary, sd, db.GetDeviceName());
+        ShortDev sdr = sd;
         // grab all initalization groups from the matching device dictonary 
         std::deque<InitalizationGroup>& igv = sd.DevicePtr->GetInitaliztionGroupVector();
         // then, for each initalization group
@@ -195,10 +199,21 @@ void ManifestBuilder::InitalizeControlObjects()
             [&](DataEntryVariant& dev) -> bool{
                 // check that each entry exists and save its index
                 return std::visit([&](auto& de) -> bool{
-                    int32_t i = DeviceDictonary::FindDataEntryIndex(sd, de.GetName());
-                    if(i != -1)
-                        idxs.push_back(i);
-                    return (i != -1);
+                    std::vector<EntryManifest>::iterator It =
+                        std::find_if(db.GetEntryManifests().begin(),
+                        db.GetEntryManifests().end(),
+                        [&](EntryManifest& em) {
+                            return em.entryName == de.GetName();
+                        });
+
+                    if (It == db.GetEntryManifests().end())
+                        return false;
+                    else
+                    {
+                        idxs.push_back(static_cast<int32_t>(It - db.GetEntryManifests().begin()));
+                        //std::cout << de.GetName() << ": " << idxs.back() << std::endl;
+                        return true;
+                    }
                 }, dev);
             }))
             {
@@ -211,28 +226,25 @@ void ManifestBuilder::InitalizeControlObjects()
                     sd.GetShortDEVector().erase(sd.GetShortDEVector().begin() + idx);
                 });
                 // and run the int command
-                ig.RunInitCmd();
+                //std::cout << ig.GetName() << std::endl;
+                std::string s = sd.DeviceName;
+                std::any& any_obj = OM.NewCreateInfo(s);
+                ig.RunInitCmd(any_obj, sdr, dbFeedback, dbDesiredState, db);
             }
         });
     });
+    OM.ConstructAllControlObjects();
 }
 
-
-
-
-
-
-
+//// TODO
 //template <typename T, typename N>
 //T ManifestBuilder::EmplaceData(std::function<T(N)> func,
-//                               std::string key,
-//                               ShortDev& shortDevice)
+//                               std::string key)
 //{
 //    DataEntryPtr dep;
 //    DeviceDictonary::FindShortDataEntry(shortDevice, dep, key); // assume ok
 //    std::visit([](){
-//    
-//    
+//        
 //    });
 //    // switch by data direction
 //    AllTypes variantData = ;

@@ -2,15 +2,19 @@
 #include <deque>
 #include <string>
 #include <variant>
-#include <functional>
 #include <cstdint>
 #include "../include/DeviceBuilder.h"
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
 #include "../include/DynamicBuffer.h"
+#include "../include/ObjectManager.h"
+#include <functional>
+#include <iostream>
+
 
 namespace dlnk
 {
+
 
 // overload visit
 template<typename... Ts>
@@ -23,11 +27,13 @@ overloaded(Ts...) -> overloaded<Ts...>;
 class ManifestBuilder
 {
 public:
-    ManifestBuilder(DeviceDictonary & _DD,
+    ManifestBuilder(ObjectManager& _OM,
+                    DeviceDictonary & _DD,
                     ShortDevVector & _shortDeviceDictonary, 
                     DynamicBuffer& _dbDesiredState, 
                     DynamicBuffer& _dbFeedback)
-    : DD{_DD}
+    : OM{_OM}
+    , DD{_DD}
     , shortDeviceDictonary {_shortDeviceDictonary}
     , dbDesiredState {_dbDesiredState}
     , dbFeedback {_dbFeedback}
@@ -53,8 +59,7 @@ public:
     
     //template<typename T, typename N>
     //T EmplaceData(std::function<T(N)> func,
-    //              std::string key,
-    //              ShortDev& DeviceEntries);
+    //              std::string key);
 
     inline bool IsInit(EntryManifest& em) { return em.entryData.has_value(); }
     inline bool IsFeedback(DataEntryPtr& dep) 
@@ -88,11 +93,14 @@ public:
 
 private:
     std::deque<DeviceBuilder> deviceManifests;
+    ObjectManager& OM;
     DeviceDictonary& DD;
     ShortDevVector& shortDeviceDictonary;
     DynamicBuffer& dbDesiredState;
     DynamicBuffer& dbFeedback;
 
+    //std::any currentControlObjectContext;
+    ShortDev* CurrentDeviceContext;
     typedef std::variant<uint8_t  , uint8_t *,
                          uint16_t , uint16_t*,
                          uint32_t , uint32_t*,

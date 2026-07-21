@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <utility>
 #include <string>
+#include <any>
 #include "../include/SerializeHelper.h"
 #include "../include/Device.h"
 #include "../include/InitalizationGroup.h"
@@ -60,7 +61,7 @@ void DeviceDictonary::ReadFromBuffer(ByteVector& _byteVector)
     const Byte* cur = &_byteVector[0];
 
     while (cur < &_byteVector.back()) {
-        this->AddDevice("").ReadFromBuffer(cur);
+        this->AddDevice<void, void>("").ReadFromBuffer(cur);
     }
 }
 
@@ -70,17 +71,11 @@ void DeviceDictonary::Print(uint8_t tabs)
         _device.Print(tabs + 1);
 }
 
-template <typename... Args>
-Device& DeviceDictonary::AddDevice(Args... _args)
-{
-    static_assert(std::is_constructible_v<Device, Args...>,
-        "AddDevice: cannot construct Device from the provided arguments. "
-        "Check that the argument types match a Device constructor.");
-
-    Devices.emplace_back(std::forward<Args>(_args)...);
-    Devices.back().SetDeviceDictonaryPtr(*this);
-    return Devices.back();
-}
+//template <typename CtrObjType, typename CreateInfoType, typename... Args>
+//Device& DeviceDictonary::AddDevice(Args... _args)
+//{
+//    
+//}
 
 void DeviceDictonary::FillShortDevVector(DeviceDictonary& DD, ShortDevVector& sdv)
 {
