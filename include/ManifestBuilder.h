@@ -8,6 +8,7 @@
 #include "../include/DataEntry.h"
 #include "../include/DynamicBuffer.h"
 #include "../include/ObjectManager.h"
+#include "SerializeHelper.h"
 #include <functional>
 #include <iostream>
 
@@ -27,11 +28,11 @@ overloaded(Ts...) -> overloaded<Ts...>;
 class ManifestBuilder
 {
 public:
-    ManifestBuilder(ObjectManager& _OM,
-                    DeviceDictonary & _DD,
-                    ShortDevVector & _shortDeviceDictonary, 
-                    DynamicBuffer& _dbDesiredState, 
-                    DynamicBuffer& _dbFeedback)
+    ManifestBuilder(ObjectManager &_OM,
+                    DeviceDictonary &_DD,
+                    ShortDevVector &_shortDeviceDictonary, 
+                    DynamicBuffer &_dbDesiredState, 
+                    DynamicBuffer &_dbFeedback)
     : OM{_OM}
     , DD{_DD}
     , shortDeviceDictonary {_shortDeviceDictonary}
@@ -41,7 +42,34 @@ public:
 
     DeviceBuilder& BuildNewDevice(std::string deviceName);
 
+    void InitalizeControlObjects();
+
     bool ValidateManifest();
+
+    void WriteManifestToBuffer(ByteVector& BV)
+    {
+        serial::write_u8_be(BV, deviceManifests.size());
+        for(DeviceBuilder& db : deviceManifests)
+        {
+            serial::write_string(BV, db.GetDeviceName());
+            db.WriteBuffer(BV);
+        }
+    }
+
+    void ReadManifestFromBuffer(const Byte*& cur)
+    {
+        uint8_t DeviceManifestCount = serial::read_u8_be(cur);
+        deviceManifests.clear();
+        for(size_t i = 0; i < DeviceManifestCount; i++)
+        {
+            std::string deviceName = serial::read_string(cur);
+            DeviceBuilder& db = BuildNewDevice(deviceName);
+            db.ReadBuffer(cur);
+        }
+        ValidateManifest();
+    }
+
+private:
 
     bool CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep);
 
@@ -89,9 +117,6 @@ public:
         }, *dep);
     }
 
-    void InitalizeControlObjects();
-
-private:
     std::deque<DeviceBuilder> deviceManifests;
     ObjectManager& OM;
     DeviceDictonary& DD;

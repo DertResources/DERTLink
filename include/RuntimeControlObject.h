@@ -3,7 +3,7 @@
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
 #include "../include/DeviceBuilder.h"
-#include "../../../../../Second_Process/Second_Process/AutoGenFile.h"
+#include "../include/AutoGenFile.h"
 
 #include <variant>
 #include <vector>
