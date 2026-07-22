@@ -79,7 +79,7 @@ namespace dlnk
 
         void WriteBuffer(ByteVector& BV)
         {
-            serial::write_u8_be(BV, entryManifests.size());
+            serial::write_u8_be(BV, static_cast<uint8_t>(entryManifests.size()));
             for(EntryManifest& em : entryManifests)
             {
                 serial::write_string(BV, em.entryName);
@@ -87,7 +87,7 @@ namespace dlnk
                 {
                     serial::write_u8_be(BV, static_cast<uint8_t>(em.entryType.value()));
                     std::visit([&](auto& InitData){
-                        serial::AutomaticWrite<decltype(InitData)>(InitData);
+                        serial::AutomaticWrite<decltype(InitData)>(BV, InitData);
                     }, em.entryData.value());
                 }   
                 else

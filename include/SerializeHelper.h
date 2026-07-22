@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <any>
+#include <type_traits>
 
 namespace dlnk
 {
@@ -188,20 +189,20 @@ inline std::string read_string(const Byte*& cur)
 }
 
 template<typename G>
-void AutomaticWrite(std::any data)
+void AutomaticWrite(ByteVector& BV, std::any data)
 {
-    if      constexpr (std::is_same_v<G, bool       >) write_bool_be    (std::any_cast<bool         >(data));
-    else if constexpr (std::is_same_v<G, uint8_t    >) write_u8_be      (std::any_cast<uint8_t      >(data));
-    else if constexpr (std::is_same_v<G, uint16_t   >) write_u16_be     (std::any_cast<uint16_t     >(data));
-    else if constexpr (std::is_same_v<G, uint32_t   >) write_u32_be     (std::any_cast<uint32_t     >(data));
-    else if constexpr (std::is_same_v<G, uint64_t   >) write_u64_be     (std::any_cast<uint64_t     >(data));
-    else if constexpr (std::is_same_v<G, int8_t     >) write_i8_be      (std::any_cast<int8_t       >(data));
-    else if constexpr (std::is_same_v<G, int16_t    >) write_i16_be     (std::any_cast<int16_t      >(data));
-    else if constexpr (std::is_same_v<G, int32_t    >) write_i32_be     (std::any_cast<int32_t      >(data));
-    else if constexpr (std::is_same_v<G, int64_t    >) write_i64_be     (std::any_cast<int64_t      >(data));
-    else if constexpr (std::is_same_v<G, float      >) write_float_be   (std::any_cast<float        >(data));
-    else if constexpr (std::is_same_v<G, double     >) write_double_be  (std::any_cast<double       >(data));
-    else if constexpr (std::is_same_v<G, std::string>) write_string     (std::any_cast<std::string  >(data));
+    if      constexpr (std::is_same_v<std::decay_t<G>, bool       >) write_bool_be    (BV, std::any_cast<bool         >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, uint8_t    >) write_u8_be      (BV, std::any_cast<uint8_t      >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, uint16_t   >) write_u16_be     (BV, std::any_cast<uint16_t     >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, uint32_t   >) write_u32_be     (BV, std::any_cast<uint32_t     >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, uint64_t   >) write_u64_be     (BV, std::any_cast<uint64_t     >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, int8_t     >) write_i8_be      (BV, std::any_cast<int8_t       >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, int16_t    >) write_i16_be     (BV, std::any_cast<int16_t      >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, int32_t    >) write_i32_be     (BV, std::any_cast<int32_t      >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, int64_t    >) write_i64_be     (BV, std::any_cast<int64_t      >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, float      >) write_float_be   (BV, std::any_cast<float        >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, double     >) write_double_be  (BV, std::any_cast<double       >(data));
+    else if constexpr (std::is_same_v<std::decay_t<G>, std::string>) write_string     (BV, std::any_cast<std::string  >(data));
 
 }
 

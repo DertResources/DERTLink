@@ -48,7 +48,7 @@ public:
 
     void WriteManifestToBuffer(ByteVector& BV)
     {
-        serial::write_u8_be(BV, deviceManifests.size());
+        serial::write_u8_be(BV, static_cast<uint8_t>(deviceManifests.size()));
         for(DeviceBuilder& db : deviceManifests)
         {
             serial::write_string(BV, db.GetDeviceName());
