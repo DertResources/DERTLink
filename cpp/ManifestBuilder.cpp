@@ -10,11 +10,14 @@
 #include <vector>
 #include <any>
 #include <optional>
+#include <functional>
 #include "../include/DeviceBuilder.h"
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
 #include "../include/InitalizationGroup.h"
 #include "../include/RuntimeControlObject.h"
+#include <ios>
+#include "../include/SerializeHelper.h"
 
 namespace dlnk
 {
@@ -50,12 +53,14 @@ bool ManifestBuilder::ValidateManifest()
                     return false;
                 }
                 ConvertDataTypes(em, dataEntryMatch);
+                std::visit([&](auto& de){
+                    em.entryType = de.GetDataType();
+                }, *dataEntryMatch);
+
                 return true;
             },[&](){ //Desired
-                AllocateDataDesiredState(em);
                 return true;
             },[&](){ //Feedback
-                AllocateDataFeedback(em);
                 return true;
             }); 
         });
@@ -166,16 +171,6 @@ void ManifestBuilder::DataDirectionError()
     std::cout << "Data Direction Wrong" << std::endl;
 }
 
-void ManifestBuilder::AllocateDataFeedback(EntryManifest& em)
-{
-
-}
-
-void ManifestBuilder::AllocateDataDesiredState(EntryManifest& em)
-{
-
-}
-
 void ManifestBuilder::InitalizeControlObjects()
 {
     // for every device in the manifest
@@ -236,22 +231,76 @@ void ManifestBuilder::InitalizeControlObjects()
     OM.ConstructAllControlObjects();
 }
 
-//// TODO
-//template <typename T, typename N>
-//T ManifestBuilder::EmplaceData(std::function<T(N)> func,
-//                               std::string key)
-//{
-//    DataEntryPtr dep;
-//    DeviceDictonary::FindShortDataEntry(shortDevice, dep, key); // assume ok
-//    std::visit([](){
-//        
-//    });
-//    // switch by data direction
-//    AllTypes variantData = ;
-//    //Get Data
-//    return std::visit([](N data) -> T {
-//        return func(data);
-//    }, variantData);
-//}
+bool ManifestBuilder::DataDirectionSwitch(EntryManifest& em,
+                                          DataEntryPtr& dep,
+                                          std::function<bool(void)> initFunc,
+                                          std::function<bool(void)> desiredFunc,
+                                          std::function<bool(void)> feedbackFunc)
+{
+    return std::visit([&](auto& de) -> bool {
+        if (em.entryData.has_value())
+            return initFunc();
+        else if (de.GetDataDirection() == DataDirection::FEEDBACK)
+            return desiredFunc();
+        else
+            return feedbackFunc();
+    }, *dep);
+}
+
+bool ManifestBuilder::IsInit(EntryManifest& em)
+{
+    return em.entryData.has_value();
+}
+
+bool ManifestBuilder::IsFeedback(DataEntryPtr& dep)
+{
+    return std::visit([](auto& de) -> bool {
+        return de.GetDataDirection() == DataDirection::FEEDBACK;
+    },
+        *dep);
+}
+
+bool ManifestBuilder::IsDesiredState(DataEntryPtr& dep)
+{
+    return std::visit([](auto& de) -> bool {
+        return de.GetDataDirection() == DataDirection::DESIREDSTATE;
+    },
+        *dep);
+}
+
+void ManifestBuilder::ReadManifestFromBuffer(const Byte*& cur)
+{
+    uint8_t DeviceManifestCount = serial::read_u8_be(cur);
+    deviceManifests.clear();
+    for (size_t i = 0; i < DeviceManifestCount; i++) {
+        std::string deviceName = serial::read_string(cur);
+        DeviceBuilder& db = BuildNewDevice(deviceName);
+        db.ReadBuffer(cur);
+    }
+    ValidateManifest();
+}
+
+void ManifestBuilder::WriteManifestToBuffer(ByteVector& BV)
+{
+    bool result = ValidateManifest();
+    std::cout << "Is Manifest Valid: " << std::boolalpha
+              << result
+              << std::noboolalpha << std::endl;
+
+    serial::write_u8_be(BV, static_cast<uint8_t>(deviceManifests.size()));
+    for (DeviceBuilder& db : deviceManifests) {
+        serial::write_string(BV, db.GetDeviceName());
+        db.WriteBuffer(BV);
+    }
+}
+
+void ManifestBuilder::Print(int tabs)
+{
+    std::cout << "Manifest:" << std::endl;
+    for(DeviceBuilder& db : deviceManifests)
+    {
+        db.Print(tabs + 1);
+    }
+}
 
 }; // namespace: dlnk

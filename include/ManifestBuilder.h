@@ -16,7 +16,6 @@
 namespace dlnk
 {
 
-
 // overload visit
 template<typename... Ts>
 struct overloaded : Ts... {
@@ -28,11 +27,11 @@ overloaded(Ts...) -> overloaded<Ts...>;
 class ManifestBuilder
 {
 public:
-    ManifestBuilder(ObjectManager &_OM,
-                    DeviceDictonary &_DD,
-                    ShortDevVector &_shortDeviceDictonary, 
-                    DynamicBuffer &_dbDesiredState, 
-                    DynamicBuffer &_dbFeedback)
+    ManifestBuilder(ObjectManager& _OM,
+                    DeviceDictonary& _DD,
+                    ShortDevVector& _shortDeviceDictonary, 
+                    DynamicBuffer& _dbDesiredState, 
+                    DynamicBuffer& _dbFeedback)
     : OM{_OM}
     , DD{_DD}
     , shortDeviceDictonary {_shortDeviceDictonary}
@@ -46,29 +45,11 @@ public:
 
     bool ValidateManifest();
 
-    void WriteManifestToBuffer(ByteVector& BV)
-    {
-        serial::write_u8_be(BV, static_cast<uint8_t>(deviceManifests.size()));
-        for(DeviceBuilder& db : deviceManifests)
-        {
-            serial::write_string(BV, db.GetDeviceName());
-            db.WriteBuffer(BV);
-        }
-    }
+    void WriteManifestToBuffer(ByteVector& BV);
 
-    void ReadManifestFromBuffer(const Byte*& cur)
-    {
-        uint8_t DeviceManifestCount = serial::read_u8_be(cur);
-        deviceManifests.clear();
-        for(size_t i = 0; i < DeviceManifestCount; i++)
-        {
-            std::string deviceName = serial::read_string(cur);
-            DeviceBuilder& db = BuildNewDevice(deviceName);
-            db.ReadBuffer(cur);
-        }
-        ValidateManifest();
-    }
+    void ReadManifestFromBuffer(const Byte*& cur);
 
+    void Print(int tabs = 0);
 private:
 
     bool CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep);
@@ -81,51 +62,25 @@ private:
 
     void DataDirectionError();
     
-    void AllocateDataFeedback(EntryManifest& em);
+    bool IsInit(EntryManifest& em);
 
-    void AllocateDataDesiredState(EntryManifest& em);
-    
-    //template<typename T, typename N>
-    //T EmplaceData(std::function<T(N)> func,
-    //              std::string key);
+    bool IsFeedback(DataEntryPtr& dep);
 
-    inline bool IsInit(EntryManifest& em) { return em.entryData.has_value(); }
-    inline bool IsFeedback(DataEntryPtr& dep) 
-    {
-        return std::visit([](auto& de) -> bool {
-            return de.GetDataDirection() == DataDirection::FEEDBACK;
-        }, *dep);
-    }
-    inline bool IsDesiredState(DataEntryPtr& dep)
-    {
-        return std::visit([](auto& de) -> bool {
-            return de.GetDataDirection() == DataDirection::DESIREDSTATE;
-        },
-        *dep);
-    }
-    inline bool DataDirectionSwitch(EntryManifest & em, DataEntryPtr & dep, std::function<bool(void)> initFunc,
-                                                                            std::function<bool(void)> desiredFunc,
-                                                                            std::function<bool(void)> feedbackFunc )
-    {
-        return std::visit([&](auto& de) -> bool {
-            if(em.entryData.has_value())
-                return initFunc();
-            else if (de.GetDataDirection() == DataDirection::FEEDBACK)
-                return desiredFunc();
-            else
-                return feedbackFunc();
-        }, *dep);
-    }
+    bool IsDesiredState(DataEntryPtr& dep);
 
-    std::deque<DeviceBuilder> deviceManifests;
+    bool DataDirectionSwitch(EntryManifest & em,
+                             DataEntryPtr & dep,
+                             std::function<bool(void)> initFunc,
+                             std::function<bool(void)> desiredFunc,
+                             std::function<bool(void)> feedbackFunc);
+
+    std::deque<DeviceBuilder> deviceManifests{};
     ObjectManager& OM;
     DeviceDictonary& DD;
     ShortDevVector& shortDeviceDictonary;
     DynamicBuffer& dbDesiredState;
     DynamicBuffer& dbFeedback;
 
-    //std::any currentControlObjectContext;
-    ShortDev* CurrentDeviceContext;
     typedef std::variant<uint8_t  , uint8_t *,
                          uint16_t , uint16_t*,
                          uint32_t , uint32_t*,
