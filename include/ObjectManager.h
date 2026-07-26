@@ -18,21 +18,9 @@ public:
     , ControlObjOperate{dd.GetControlObjectOperateMap()}
     {}
 
-    std::any& NewCreateInfo(std::string deviceName)
-    {
-        std::any& ref = createInfoVectors[deviceName].emplace_back();
-        createInfoOperate[deviceName](ref);
-        return ref;
-    }
+    std::any& NewCreateInfo(std::string deviceName);
 
-    void ConstructAllControlObjects()
-    {
-        for(auto& [key, value] : createInfoVectors)
-        {
-            std::any& ref = controlObjectVector.emplace_back();
-            ControlObjOperate[key](ref, value);
-        }
-    }
+    void ConstructAllControlObjects();
 
 private:
     std::unordered_map<std::string, std::vector<std::any>> createInfoVectors;
@@ -42,4 +30,4 @@ private:
     std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> ControlObjOperate;
 };
 
-};
+}; // namespace: dlnk

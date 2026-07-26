@@ -85,7 +85,7 @@ public:
     void ReadFromBuffer(const Byte*& cur);
     void Print(uint8_t tabs = 0) const;
     template<typename G>
-    constexpr DataEntry& SetDataType() {
+    DataEntry& SetDataType() {
              if constexpr (std::is_same_v<G, bool       >) dataType = DataType::BOOL   ;
         else if constexpr (std::is_same_v<G, uint8_t    >) dataType = DataType::UINT8  ;
         else if constexpr (std::is_same_v<G, uint16_t   >) dataType = DataType::UINT16 ;
@@ -118,4 +118,4 @@ typedef std::variant<DataEntry<bool>,
 
 }; // namespace: dlnk
 
-#include "../cpp/DataEntry_imp.tpp"
+#include "../cpp/DataEntry.tpp"

@@ -134,41 +134,29 @@ void DynamicBuffer::ExportBytes(ByteVector& expBuff)
     [&](std::pair<size_t, DataType>& entryDescription) {
         switch (entryDescription.second) {
         case DataType::DOUBLE:
-            serial::write_double_be(expBuff, *reinterpret_cast<double*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_double_be(expBuff, *reinterpret_cast<double*>(&buffer[entryDescription.first])); break;
         case DataType::FLOAT:
-            serial::write_float_be(expBuff, *reinterpret_cast<float*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_float_be(expBuff, *reinterpret_cast<float*>(&buffer[entryDescription.first])); break;
         case DataType::UINT8:
-            serial::write_u8_be(expBuff, *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_u8_be(expBuff, *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first])); break;
         case DataType::UINT16:
-            serial::write_u16_be(expBuff, *reinterpret_cast<uint16_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_u16_be(expBuff, *reinterpret_cast<uint16_t*>(&buffer[entryDescription.first])); break;
         case DataType::UINT32:
-            serial::write_u32_be(expBuff, *reinterpret_cast<uint32_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_u32_be(expBuff, *reinterpret_cast<uint32_t*>(&buffer[entryDescription.first])); break;
         case DataType::UINT64:
-            serial::write_u64_be(expBuff, *reinterpret_cast<uint64_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_u64_be(expBuff, *reinterpret_cast<uint64_t*>(&buffer[entryDescription.first])); break;
         case DataType::INT8:
-            serial::write_i8_be(expBuff, *reinterpret_cast<int8_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_i8_be(expBuff, *reinterpret_cast<int8_t*>(&buffer[entryDescription.first])); break;
         case DataType::INT16:
-            serial::write_i16_be(expBuff, *reinterpret_cast<int16_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_i16_be(expBuff, *reinterpret_cast<int16_t*>(&buffer[entryDescription.first])); break;
         case DataType::INT32:
-            serial::write_i32_be(expBuff, *reinterpret_cast<int32_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_i32_be(expBuff, *reinterpret_cast<int32_t*>(&buffer[entryDescription.first])); break;
         case DataType::INT64:
-            serial::write_i64_be(expBuff, *reinterpret_cast<int64_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_i64_be(expBuff, *reinterpret_cast<int64_t*>(&buffer[entryDescription.first])); break;
         case DataType::BOOL:
-            serial::write_bool_be(expBuff, *reinterpret_cast<bool*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_bool_be(expBuff, *reinterpret_cast<bool*>(&buffer[entryDescription.first])); break;
         case DataType::STRING:
-            serial::write_u8_be(expBuff, *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first]));
-            break;
+            serial::write_u8_be(expBuff, *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first])); break;
         }
     });
     // write all strings
@@ -176,6 +164,56 @@ void DynamicBuffer::ExportBytes(ByteVector& expBuff)
         [&](std::pair<size_t, std::string>& se) {
             serial::write_string(expBuff, se.second);
         });
+}
+
+void DynamicBuffer::ImportBytes(const Byte*& cur)
+{
+    size_t stringCount = static_cast<size_t>(serial::read_u8_be(cur));
+
+    std::for_each(bufferDescription.begin(), bufferDescription.end(),
+        [&](std::pair<size_t, DataType>& entryDescription) {
+            switch (entryDescription.second) {
+            case DataType::DOUBLE:
+                *reinterpret_cast<double*>(&buffer[entryDescription.first]) = serial::read_double_be(cur);
+                break;
+            case DataType::FLOAT:
+                *reinterpret_cast<float*>(&buffer[entryDescription.first]) = serial::read_float_be(cur);
+                break;
+            case DataType::UINT8:
+                *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first]) = serial::read_u8_be(cur);
+                break;
+            case DataType::UINT16:
+                *reinterpret_cast<uint16_t*>(&buffer[entryDescription.first]) = serial::read_u16_be(cur);
+                break;
+            case DataType::UINT32:
+                *reinterpret_cast<uint32_t*>(&buffer[entryDescription.first]) = serial::read_u32_be(cur);
+                break;
+            case DataType::UINT64:
+                *reinterpret_cast<uint64_t*>(&buffer[entryDescription.first]) = serial::read_u64_be(cur);
+                break;
+            case DataType::INT8:
+                *reinterpret_cast<int8_t*>(&buffer[entryDescription.first]) = serial::read_i8_be(cur);
+                break;
+            case DataType::INT16:
+                *reinterpret_cast<int16_t*>(&buffer[entryDescription.first]) = serial::read_i16_be(cur);
+                break;
+            case DataType::INT32:
+                *reinterpret_cast<int32_t*>(&buffer[entryDescription.first]) = serial::read_i32_be(cur);
+                break;
+            case DataType::INT64:
+                *reinterpret_cast<int64_t*>(&buffer[entryDescription.first]) = serial::read_i64_be(cur);
+                break;
+            case DataType::BOOL:
+                *reinterpret_cast<bool*>(&buffer[entryDescription.first]) = serial::read_bool_be(cur);
+                break;
+            case DataType::STRING:
+                *reinterpret_cast<uint8_t*>(&buffer[entryDescription.first]) = serial::read_u8_be(cur);
+                break;
+            }
+        });
+    for (size_t stringId = 0; stringId < stringCount; stringId++) {
+        string_alloc_buffer[stringId].second = serial::read_string(cur);
+    }
 }
 
 } // namespace: dlnk

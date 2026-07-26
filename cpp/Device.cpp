@@ -8,6 +8,7 @@
 #include "../include/InitalizationGroup.h"
 #include "../include/DataEntry.h"
 #include "../include/PortabilityHelper.h"
+#include <deque>
 
 namespace dlnk
 {
@@ -66,6 +67,31 @@ void Device::Print(uint8_t tabs)
         entry.Print(tabs+1);
     }
     print_t(tabString + "\033[91m]\033[m\n");
+}
+
+DeviceDictonary& Device::ExitDevice()
+{
+    return *deviceDictonaryPtr;
+}
+
+std::string Device::GetName()
+{
+    return this->deviceName;
+}
+
+std::deque<InitalizationGroup>& Device::GetInitaliztionGroupVector()
+{
+    return this->initalizationGroupVector;
+}
+
+void Device::SetAccessFunction(AccessFunc func)
+{
+    createInfoAccessFunc = func;
+}
+
+void Device::SetDeviceDictonaryPtr(DeviceDictonary& ref)
+{
+    deviceDictonaryPtr = &ref;
 }
 
 }; // namespace dlnk

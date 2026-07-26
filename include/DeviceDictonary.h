@@ -8,14 +8,12 @@
 #include <variant>
 #include "../include/Device.h"
 #include "../include/SerializeHelper.h"
-#include "../include/DynamicBuffer.h"
 #include <type_traits>
 #include <utility>
 #include <any>
 #include <functional>
 #include <memory>
 #include <unordered_map>
-#include <initializer_list>
 
 namespace dlnk
 {
@@ -33,38 +31,7 @@ class DeviceDictonary
 {
 public:
     template <typename CtrObjType, typename CreateInfoType, typename... Args>
-    inline Device& AddDevice(Args... _args)
-    {
-        static_assert(std::is_constructible_v<Device, Args...>,
-            "AddDevice: cannot construct Device from the provided arguments. "
-            "Check that the argument types match a Device constructor.");
-
-        Devices.emplace_back(std::forward<Args>(_args)...);
-        Devices.back().SetDeviceDictonaryPtr(*this);
-
-        //auto w = 
-        //    [](std::any& createInfoObj, std::function<void(auto&)> func)
-        //    {
-        //        CreateInfoType& _a1 = std::any_cast<CreateInfoType&>(createInfoObj);
-        //        func(_a1);
-        //    });
-        if constexpr (!std::is_same<CreateInfoType, void>() && !std::is_same<CtrObjType, void>())
-        {
-            createInfoOperate[Devices.back().GetName()] = [](std::any& anyOpp) {
-                anyOpp = std::make_any<CreateInfoType>();
-            };
-
-            ControlObjOperate[Devices.back().GetName()] = [](std::any& anyOpp, std::vector<std::any> createInfoVector) {
-                std::vector<CreateInfoType> civ = {};
-                for (auto& ci : createInfoVector) {
-                    civ.push_back(std::any_cast<CreateInfoType>(ci));
-                }
-                anyOpp = std::make_any<CtrObjType>(civ);
-            };
-        }
-        
-        return Devices.back();
-    }
+    inline Device& AddDevice(Args... _args);
 
     void Print(uint8_t tabs = 0);
 
@@ -72,18 +39,11 @@ public:
 
     void ReadFromBuffer(ByteVector& _byteVector);
 
-    inline std::deque<Device>& GetDeviceVector() { return this->Devices; }
+    std::deque<Device>& GetDeviceVector();
 
+    std::unordered_map<std::string, std::function<void(std::any&)>> GetCreateInfoOperateMap();
     
-    inline std::unordered_map<std::string, std::function<void(std::any&)>> GetCreateInfoOperateMap()
-    {
-        return createInfoOperate;
-    };
-    
-    inline std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> GetControlObjectOperateMap()
-    {
-        return ControlObjOperate;
-    };
+    std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> GetControlObjectOperateMap();
 
     static bool CompareDictonaries(DeviceDictonary& dd1, DeviceDictonary& dd2);
 
@@ -104,3 +64,5 @@ private:
 };
 
 }; // namespace: dlnk
+
+#include "../cpp/DeviceDictonary.tpp"

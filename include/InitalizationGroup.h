@@ -29,23 +29,26 @@ public:
     {}
 
     template<typename T>
-    inline InitalizationGroup& AddDataEntry(std::string _name, DataDirection _direction) { GroupDataEntries.push_back(std::move(DataEntry<T>(_name, _direction))); return *this; }
-
-    InitalizationGroup& SetInitalizationCmd(InitFuncType func)
+    inline InitalizationGroup& AddDataEntry(std::string _name, DataDirection _direction)
     {
-        InitalizationCmd = std::move(func);
+        GroupDataEntries.push_back(std::move(DataEntry<T>(_name, _direction)));
         return *this;
     }
 
-    inline std::deque<DataEntryVariant>& getDataEntryVector() { return GroupDataEntries; }
+    InitalizationGroup& SetInitalizationCmd(InitFuncType func);
+
+    std::deque<DataEntryVariant>& getDataEntryVector();
     
     void Print(uint8_t tabs = 0);
 
-    inline void SetDevicePtr(Device& ref) { devicePtr = &ref; }
+    void SetDevicePtr(Device& ref);
 
-    inline Device& ExitInitalizationGroup() { return *devicePtr; }
-    inline void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db) { InitalizationCmd(obj, sd, dbf, dbd, db); }
-    inline std::string GetName() { return GroupName; }
+    Device& ExitInitalizationGroup();
+
+    void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
+
+    std::string GetName();
+
 private:
     std::deque<DataEntryVariant> GroupDataEntries;
     Device* devicePtr = nullptr;

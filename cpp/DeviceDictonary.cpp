@@ -3,14 +3,16 @@
 #include <algorithm>
 #include <variant>
 #include <cstdint>
-#include <type_traits>
-#include <utility>
 #include <string>
 #include <any>
 #include "../include/SerializeHelper.h"
 #include "../include/Device.h"
 #include "../include/InitalizationGroup.h"
 #include "../include/DataEntry.h"
+#include <deque>
+#include <unordered_map>
+#include <functional>
+#include <vector>
 
 
 
@@ -159,5 +161,20 @@ int32_t DeviceDictonary::FindDataEntryIndex(ShortDev& sdr, std::string targetNam
         return static_cast<int32_t>(deMatchIt - sdr.DeviceEntryPtrs.begin());
     }
 }
+
+std::deque<Device>& DeviceDictonary::GetDeviceVector()
+{
+    return this->Devices;
+}
+
+std::unordered_map<std::string, std::function<void(std::any&)>> DeviceDictonary::GetCreateInfoOperateMap()
+{
+    return createInfoOperate;
+};
+
+std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> DeviceDictonary::GetControlObjectOperateMap()
+{
+    return ControlObjOperate;
+};
 
 }; // namespace: dlnk
