@@ -14,8 +14,6 @@
 #include <functional>
 #include <vector>
 
-
-
 namespace dlnk
 {
 
@@ -53,17 +51,18 @@ bool DeviceDictonary::CompareDictonaries(DeviceDictonary& dd1, DeviceDictonary& 
 
 void DeviceDictonary::WriteToBuffer(ByteVector& _byteVector)
 {
+    serial::write_u8_be(_byteVector, static_cast<uint8_t>(Devices.size()));
     for (Device& _device : Devices) {
         _device.WriteToBuffer(_byteVector);
     }
 }
 
-void DeviceDictonary::ReadFromBuffer(ByteVector& _byteVector)
+void DeviceDictonary::ReadFromBuffer(const Byte*& cur)
 {
-    const Byte* cur = &_byteVector[0];
-
-    while (cur < &_byteVector.back()) {
-        this->AddDevice<void, void>("").ReadFromBuffer(cur);
+    uint8_t deviceCount = serial::read_u8_be(cur);
+    for(size_t i = 0; i < deviceCount; i++)
+    {
+        AddDevice<void, void>("").ReadFromBuffer(cur);
     }
 }
 
@@ -72,12 +71,6 @@ void DeviceDictonary::Print(uint8_t tabs)
     for (Device& _device : Devices)
         _device.Print(tabs + 1);
 }
-
-//template <typename CtrObjType, typename CreateInfoType, typename... Args>
-//Device& DeviceDictonary::AddDevice(Args... _args)
-//{
-//    
-//}
 
 void DeviceDictonary::FillShortDevVector(DeviceDictonary& DD, ShortDevVector& sdv)
 {
@@ -167,12 +160,12 @@ std::deque<Device>& DeviceDictonary::GetDeviceVector()
     return this->Devices;
 }
 
-std::unordered_map<std::string, std::function<void(std::any&)>> DeviceDictonary::GetCreateInfoOperateMap()
+std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>)>> DeviceDictonary::GetCreateInfoOperateMap()
 {
     return createInfoOperate;
 };
 
-std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> DeviceDictonary::GetControlObjectOperateMap()
+std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>, std::vector<std::unique_ptr<std::any>>)>> DeviceDictonary::GetControlObjectOperateMap()
 {
     return ControlObjOperate;
 };

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <any>
+#include <memory>
 #include "../include/InitalizationGroup.h"
 #include "../include/SerializeHelper.h"
 
@@ -13,7 +14,7 @@ namespace dlnk
 {
 class DeviceDictonary; // forward declaration
 
-typedef std::function<void(std::any& objectCursor, std::any parameter)> AccessFunc;
+typedef std::function<void(std::unique_ptr<std::any> objectCursor, std::any parameter)> AccessFunc;
 
 class Device
 {
@@ -21,7 +22,8 @@ private:
     std::string deviceName;
     std::deque<InitalizationGroup> initalizationGroupVector;
     DeviceDictonary* deviceDictonaryPtr = nullptr;
-    std::function<void(std::any& objectCursor, std::any parameter)> createInfoAccessFunc;
+    AccessFunc createInfoAccessFunc;
+
 public:
     inline Device& SetDeviceName(std::string __deviceName) { deviceName = __deviceName; return *this; }
     

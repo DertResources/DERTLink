@@ -1,7 +1,6 @@
 #pragma once
 
 #include <deque>
-#include <algorithm>
 #include <vector>
 #include <utility>
 #include <string>
@@ -27,12 +26,12 @@ private:
     }
     // buffer is a deque so that pointers remain valid on resize
     std::vector<std::pair<size_t, DataType>> bufferDescription;
-    std::vector<std::pair<size_t, std::string>> string_alloc_buffer;
+    std::vector<std::string> string_alloc_buffer;
     size_t stackSize = 0;
-    std::deque<Byte> buffer;
+    std::deque<std::any> buffer;
 
 public:
-    std::deque<Byte>& GetBuffer() { return buffer; }
+    std::deque<std::any>& GetBuffer() { return buffer; }
     // Allocators
     void AllocateDouble(double*& ptr);
     void AllocateFloat(float*& ptr);
@@ -45,15 +44,15 @@ public:
     void AllocateInt32(int32_t*& ptr); 
     void AllocateInt64(int64_t*& ptr); 
     void AllocateBool(bool*& ptr); 
-    void AllocateString(uint8_t*& ptr);
+    void AllocateString(uint8_t& ptr);
     
     // Special String Handling
-    inline std::string ReadString(uint8_t* heapIdPtr) { return string_alloc_buffer[*heapIdPtr].second; }
-    inline void WriteString(uint8_t* heapIdPtr, std::string str) { string_alloc_buffer[*heapIdPtr].second = str; }
+    inline std::string ReadString(uint8_t heapIdPtr) { return string_alloc_buffer[heapIdPtr]; }
+    inline void WriteString(uint8_t heapIdPtr, std::string str) { string_alloc_buffer[heapIdPtr] = str; }
+
     // populate Buffer
     void ExportBytes(ByteVector& expBuff);
     void ImportBytes(const Byte*& cur);
-
 };
 
 }; // namespace: dlnk

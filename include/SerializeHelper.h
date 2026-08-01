@@ -203,7 +203,6 @@ void AutomaticWrite(ByteVector& BV, std::any data)
     else if constexpr (std::is_same_v<std::decay_t<G>, float      >) write_float_be   (BV, std::any_cast<float        >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, double     >) write_double_be  (BV, std::any_cast<double       >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, std::string>) write_string     (BV, std::any_cast<std::string  >(data));
-
 }
 
 }; // namespace: serial

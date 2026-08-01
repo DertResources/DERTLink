@@ -45,9 +45,9 @@ void allocate(Func& func, DynamicBuffer& db, DataType dt)
         func(pDouble);
         break;
     case DataType::STRING:
-        uint8_t* pString;
-        db.AllocateString(pString);
-        func(pString);
+        uint8_t vString;
+        db.AllocateString(vString);
+        func(vString);
         break;
     case DataType::INT8:
         int8_t* pInt8;
@@ -144,7 +144,6 @@ void input(Func&& func,
             std::visit([&func](auto& data){
                 func(data);
             }, It->entryData.value());
-        
         }
         else if (dd == DataDirection::FEEDBACK)
         {
@@ -159,9 +158,9 @@ void input(Func&& func,
 
 
 template <typename Ret, typename Class, typename Arg>
-void RunFunc(std::any& obj, std::any arg, Ret (Class::*funcPtr)(Arg))
+void RunFunc(std::unique_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)(Arg))
 {
-    if (obj.type() != typeid(Class))
+    if (obj.get()->type() != typeid(Class))
         std::cout << "Init Group bound function class cast failed" << std::endl;
     if (arg.type() != typeid(Arg))
         std::cout << "Init Group bound function argment cast failed" << std::endl;
@@ -172,10 +171,11 @@ void RunFunc(std::any& obj, std::any arg, Ret (Class::*funcPtr)(Arg))
         std::cout << "Init Group bound function call failed" << std::endl;
     }
 }
+
 template <typename Ret, typename Class>
-void RunFunc(std::any& obj, std::any arg, Ret (Class::*funcPtr)())
+void RunFunc(std::unique_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)())
 {
-    if (obj.type() != typeid(Class))
+    if (obj.get()->type() != typeid(Class))
         std::cout << "Init Group bound function class cast failed" << std::endl;
 
     try {

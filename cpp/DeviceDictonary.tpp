@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 #include <any>
+#include <memory>
 
 
 namespace dlnk
@@ -27,16 +28,16 @@ inline Device& DeviceDictonary::AddDevice(Args... _args)
     //         func(_a1);
     //     });
     if constexpr (!std::is_same<CreateInfoType, void>() && !std::is_same<CtrObjType, void>()) {
-        createInfoOperate[Devices.back().GetName()] = [](std::any& anyOpp) {
+        createInfoOperate[Devices.back().GetName()] = [](std::unique_ptr<std::any> anyOpp) {
             anyOpp = std::make_any<CreateInfoType>();
         };
 
-        ControlObjOperate[Devices.back().GetName()] = [](std::any& anyOpp, std::vector<std::any> createInfoVector) {
+        ControlObjOperate[Devices.back().GetName()] = [](std::unique_ptr<std::any> anyOpp, std::vector<std::unique_ptr<std::any>> createInfoVector) {
             std::vector<CreateInfoType> civ = { };
-            for (auto& ci : createInfoVector) {
-                civ.push_back(std::any_cast<CreateInfoType>(ci));
+            for (std::unique_ptr<std::any>& ci : createInfoVector) {
+                civ.push_back(std::any_cast<CreateInfoType>(*ci.get()));
             }
-            anyOpp = std::make_any<CtrObjType>(civ);
+            anyOpp = std::make_unique<std::any>(std::make_any<CtrObjType>(civ));
         };
     }
 

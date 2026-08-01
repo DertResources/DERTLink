@@ -5,14 +5,10 @@
 #include <vector>
 #include <cstdint>
 #include <string>
-#include <variant>
 #include "../include/Device.h"
 #include "../include/SerializeHelper.h"
-#include <type_traits>
-#include <utility>
 #include <any>
 #include <functional>
-#include <memory>
 #include <unordered_map>
 
 namespace dlnk
@@ -37,13 +33,13 @@ public:
 
     void WriteToBuffer(ByteVector& _byteVector);
 
-    void ReadFromBuffer(ByteVector& _byteVector);
+    void ReadFromBuffer(const Byte*& cur);
 
     std::deque<Device>& GetDeviceVector();
 
-    std::unordered_map<std::string, std::function<void(std::any&)>> GetCreateInfoOperateMap();
+    std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>)>> GetCreateInfoOperateMap();
     
-    std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> GetControlObjectOperateMap();
+    std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>, std::vector<std::unique_ptr<std::any>>)>> GetControlObjectOperateMap();
 
     static bool CompareDictonaries(DeviceDictonary& dd1, DeviceDictonary& dd2);
 
@@ -58,8 +54,8 @@ public:
     static int32_t FindDataEntryIndex(ShortDev& sdr, std::string targetName);
 
 private:
-    std::unordered_map<std::string, std::function<void(std::any&)>> createInfoOperate;
-    std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> ControlObjOperate;
+    std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>)>> createInfoOperate;
+    std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>, std::vector<std::unique_ptr<std::any>>)>> ControlObjOperate;
     std::deque<Device> Devices;
 };
 

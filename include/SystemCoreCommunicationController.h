@@ -34,6 +34,13 @@ public:
         DeviceDictonary::SortShortDevVector(SDV);
     }
     
+    void Stage_One_HandShake_FromBuffer()
+    {
+        
+    }
+
+    inline void ClearBuffer() {BV.clear();}
+
     static std::unique_ptr<SCCC> Instance;
 private:
     DeviceDictonary DD;
@@ -42,6 +49,7 @@ private:
     ManifestBuilder MB;
     DynamicBuffer   DB_Feedback;
     DynamicBuffer   DB_DesiredState;
+    ByteVector      BV;
 };
 
 

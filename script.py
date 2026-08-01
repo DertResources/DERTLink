@@ -58,7 +58,7 @@ for i in range(1, count2+1):
         fileContents += ", Function" + str(j) + ", StringKey" + str(j)
     fileContents += ") \\\n"
     # end of define header
-    fileContents += "[](std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db) {    \\\n"
+    fileContents += "[](std::unique_ptr<std::any> obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db) {    \\\n"
     for k in range(0, i):
         fileContents += "   input([&](std::any arg) \\\n   {                                             \\\n"
         if( k != 0 ):
@@ -68,7 +68,7 @@ for i in range(1, count2+1):
             fileContents += ")  \\\n"
         else:
             fileContents += "       using Result = CreateInfoClass;        \\\n"
-        fileContents += "       RunFunc(obj, arg, &Result::Function" + str(k+1) + ");        \\\n"
+        fileContents += "       RunFunc(obj.get(), arg, &Result::Function" + str(k+1) + ");        \\\n"
         fileContents += "   }, StringKey" + str(k+1) + ", sd, dbf, dbd, db);\\\n"
         if(k != i-1):
             fileContents += "                         \\\n"
@@ -92,5 +92,5 @@ fileContents += ")(__VA_ARGS__) )\n"
 # auto wrapper = [](std::any obj, std::any arg) { FOO(RootClass, F1, F2) \
 #                                                 RunFunc(obj, arg, &Result::funcName); }
 
-with open("TypeExtrapolion.h", "w", encoding="utf-8") as f:
+with open("include/AutoGenFile.h", "w", encoding="utf-8") as f:
     f.write(fileContents)
