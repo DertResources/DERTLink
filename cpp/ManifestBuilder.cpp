@@ -11,6 +11,7 @@
 #include <any>
 #include <optional>
 #include <functional>
+#include <memory>
 #include "../include/DeviceBuilder.h"
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
@@ -223,7 +224,7 @@ void ManifestBuilder::InitalizeControlObjects()
                 // and run the int command
                 //std::cout << ig.GetName() << std::endl;
                 std::string s = sd.DeviceName;
-                std::any& any_obj = OM.NewCreateInfo(s);
+                std::shared_ptr<std::any>& any_obj = OM.NewCreateInfo(s);
                 ig.RunInitCmd(any_obj, sdr, dbFeedback, dbDesiredState, db);
             }
         });

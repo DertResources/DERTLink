@@ -41,7 +41,7 @@ public:
 
     inline void ClearBuffer() {BV.clear();}
 
-    static std::unique_ptr<SCCC> Instance;
+    static std::shared_ptr<SCCC> Instance;
 private:
     DeviceDictonary DD;
     ShortDevVector SDV;

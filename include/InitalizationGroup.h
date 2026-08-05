@@ -7,6 +7,7 @@
 #include <utility>
 #include <algorithm>
 #include <vector>
+#include <memory>
 #include <any>
 #include "../include/DataEntry.h"
 #include "../include/DynamicBuffer.h"
@@ -19,7 +20,7 @@ class Device;
 class ManifestBuilder;
 struct ShortDev;
 
-using InitFuncType = std::function<void(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
+using InitFuncType = std::function<void(std::shared_ptr<std::any>& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
 
 class InitalizationGroup
 {
@@ -45,7 +46,7 @@ public:
 
     Device& ExitInitalizationGroup();
 
-    void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
+    void RunInitCmd(std::shared_ptr<std::any>& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
 
     std::string GetName();
 

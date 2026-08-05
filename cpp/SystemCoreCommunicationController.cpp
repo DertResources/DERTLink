@@ -2,5 +2,5 @@
 
 namespace dlnk 
 {
-std::unique_ptr<SCCC> SCCC::Instance = std::make_unique<SCCC>();
+std::shared_ptr<SCCC> SCCC::Instance = std::make_shared<SCCC>();
 };

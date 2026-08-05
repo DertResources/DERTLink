@@ -90,7 +90,7 @@ public:
 
     void ClearBuffer() {BV.clear();}
 
-    static std::unique_ptr<CPCC> Instance;
+    static std::shared_ptr<CPCC> Instance;
 private:
     DeviceDictonary DD;
     ShortDevVector SDV;

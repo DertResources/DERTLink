@@ -2,5 +2,5 @@
 
 namespace dlnk 
 {
-std::unique_ptr<CPCC>CPCC::Instance = std::make_unique<CPCC>();
+std::shared_ptr<CPCC>CPCC::Instance = std::make_shared<CPCC>();
 };

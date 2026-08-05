@@ -158,7 +158,7 @@ void input(Func&& func,
 
 
 template <typename Ret, typename Class, typename Arg>
-void RunFunc(std::unique_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)(Arg))
+void RunFunc(std::shared_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)(Arg))
 {
     if (obj.get()->type() != typeid(Class))
         std::cout << "Init Group bound function class cast failed" << std::endl;
@@ -166,20 +166,20 @@ void RunFunc(std::unique_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)(
         std::cout << "Init Group bound function argment cast failed" << std::endl;
 
     try {
-        obj = std::bind(funcPtr, std::any_cast<Class&>(obj), std::any_cast<Arg>(arg))();
+        obj = std::bind(funcPtr, *std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get(), std::any_cast<Arg>(arg))();
     } catch (std::exception e) {
         std::cout << "Init Group bound function call failed" << std::endl;
     }
 }
 
 template <typename Ret, typename Class>
-void RunFunc(std::unique_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)())
+void RunFunc(std::shared_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)())
 {
     if (obj.get()->type() != typeid(Class))
         std::cout << "Init Group bound function class cast failed" << std::endl;
 
     try {
-        obj = std::bind(funcPtr, std::any_cast<Class&>(obj))();
+        obj = std::bind(funcPtr, *std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get())();
     } catch (std::exception e) {
         std::cout << "Init Group bound function call failed" << std::endl;
     }

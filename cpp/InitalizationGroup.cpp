@@ -39,7 +39,7 @@ Device& InitalizationGroup::ExitInitalizationGroup()
     return *devicePtr;
 }
 
-void InitalizationGroup::RunInitCmd(std::any& obj,
+void InitalizationGroup::RunInitCmd(std::shared_ptr<std::any>& obj,
                                     ShortDev& sd,
                                     DynamicBuffer& dbf,
                                     DynamicBuffer& dbd,

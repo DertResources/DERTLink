@@ -14,7 +14,7 @@ namespace dlnk
 {
 class DeviceDictonary; // forward declaration
 
-typedef std::function<void(std::unique_ptr<std::any> objectCursor, std::any parameter)> AccessFunc;
+typedef std::function<void(std::shared_ptr<std::any> objectCursor, std::any parameter)> AccessFunc;
 
 class Device
 {

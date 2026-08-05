@@ -160,12 +160,12 @@ std::deque<Device>& DeviceDictonary::GetDeviceVector()
     return this->Devices;
 }
 
-std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>)>> DeviceDictonary::GetCreateInfoOperateMap()
+std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&)>> DeviceDictonary::GetCreateInfoOperateMap()
 {
     return createInfoOperate;
 };
 
-std::unordered_map<std::string, std::function<void(std::unique_ptr<std::any>, std::vector<std::unique_ptr<std::any>>)>> DeviceDictonary::GetControlObjectOperateMap()
+std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&, std::vector<std::shared_ptr<std::any>>&)>> DeviceDictonary::GetControlObjectOperateMap()
 {
     return ControlObjOperate;
 };
