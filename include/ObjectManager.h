@@ -13,10 +13,11 @@ namespace dlnk
 class ObjectManager
 {
 public:
-    ObjectManager(DeviceDictonary dd)
-    : createInfoOperate{dd.GetCreateInfoOperateMap()}
-    , ControlObjOperate{dd.GetControlObjectOperateMap()}
-    {}
+    void SetupMaps(DeviceDictonary dd)
+    {
+        createInfoOperate = dd.GetCreateInfoOperateMap();
+        ControlObjOperate = dd.GetControlObjectOperateMap();
+    }
 
     std::shared_ptr<std::any>& NewCreateInfo(std::string deviceName);
 

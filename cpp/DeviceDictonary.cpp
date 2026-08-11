@@ -62,7 +62,7 @@ void DeviceDictonary::ReadFromBuffer(const Byte*& cur)
     uint8_t deviceCount = serial::read_u8_be(cur);
     for(size_t i = 0; i < deviceCount; i++)
     {
-        AddDevice<void, void>("").ReadFromBuffer(cur);
+        AddDevice("").ReadFromBuffer(cur);
     }
 }
 
@@ -169,5 +169,13 @@ std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&, s
 {
     return ControlObjOperate;
 };
+
+Device& DeviceDictonary::AddDevice(std::string deviceName)
+{
+    Devices.emplace_back(std::forward<std::string>(deviceName));
+    Devices.back().SetDeviceDictonaryPtr(*this);
+    
+    return Devices.back();
+}
 
 }; // namespace: dlnk

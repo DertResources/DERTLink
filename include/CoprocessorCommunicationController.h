@@ -22,7 +22,7 @@ public:
     CoprocessorCommunicationController()
     : DD{}
     , SDV{}
-    , OM{DD}
+    , OM{}
     , MB{OM,
         DD,
         SDV,
@@ -38,10 +38,6 @@ public:
         // Fill Short Device Dictonary when the DD is full
         DeviceDictonary::FillShortDevVector(DD, SDV);
         DeviceDictonary::SortShortDevVector(SDV);
-
-        MB.ValidateManifest();
-        //Stage 1 of handshake
-        StageOneHandshake_ToBuffer();
     }
 
     /**
@@ -59,33 +55,24 @@ public:
 
         //end of message
         CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
+
+        CM::SendMessage(BV);
     }
 
-    void StageOneHandshake_FromBuffer()
+    void StageTwoHandshake_ToBuffer()
     {
-        const Byte* cur = &BV[0];
-        MT messageType;
-        MBS messageBodySignature;
-        // Message Header
-        messageType = CM::ReadMessageType(cur);
-        if(messageType != MT::HANDSHAKE_STEP_ONE)
-            std::cout << "ERROR: Wrong Message Type" << std::endl;
-        
-        // Message Body
-        messageBodySignature = CM::ReadMessageBodySignature(cur);
-        if(messageBodySignature != MBS::DEVICE_DICTONARY)
-            std::cout << "ERROR: Wrong Message Body Signature" << std::endl;
-        DeviceDictonary dd;
-        dd.ReadFromBuffer(cur);
+        ClearBuffer();
+        //Message Header
+        CM::WriteMessageType(BV, MT::HANDSHAKE_STEP_TWO);
 
-        messageBodySignature = CM::ReadMessageBodySignature(cur);
-        if(messageBodySignature != MBS::END_OF_MESSAGE)
-            std::cout << "ERROR: Wrong Message Body Signature" << std::endl;
+        //Manifest
+        CM::WriteMessageBodySignature(BV, MBS::MANIFEST);
+        MB.WriteManifestToBuffer(BV);
 
-        if(DeviceDictonary::CompareDictonaries(dd, DD))
-            std::cout << "Dictonaries Match" << std::endl;
-        else
-            std::cout << "Error: Dictonaries don't match" << std::endl;
+        //end of message
+        CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
+
+        CM::SendMessage(BV);
     }
 
     void ClearBuffer() {BV.clear();}

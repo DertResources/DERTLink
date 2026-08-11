@@ -27,7 +27,9 @@ class DeviceDictonary
 {
 public:
     template <typename CtrObjType, typename CreateInfoType>
-    inline Device& AddDevice(std::string deviceName);
+    Device& AddDevice(std::string deviceName);
+
+    Device& AddDevice(std::string deviceName);
 
     void Print(uint8_t tabs = 0);
 

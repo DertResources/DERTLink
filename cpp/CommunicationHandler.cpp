@@ -3,6 +3,8 @@
 namespace dlnk
 {
 
+ByteVector CommunicationManager::buffer = {};
+
 std::vector<uint8_t> CommunicationManager::message_type_map =
 {
     0x00,

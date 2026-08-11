@@ -4,6 +4,8 @@
 #include "../include/DataEntry.h"
 #include "../include/DeviceBuilder.h"
 #include "../include/AutoGenFile.h"
+#include "../include/ManifestBuilder.h"
+#include "fmt/base.h"
 
 #include <variant>
 #include <vector>
@@ -158,31 +160,71 @@ void input(Func&& func,
 
 
 template <typename Ret, typename Class, typename Arg>
-void RunFunc(std::shared_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)(Arg))
+void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
 {
-    if (obj.get()->type() != typeid(Class))
-        std::cout << "Init Group bound function class cast failed" << std::endl;
-    if (arg.type() != typeid(Arg))
-        std::cout << "Init Group bound function argment cast failed" << std::endl;
+    std::visit([&](auto& a){
+        using U = std::decay_t<decltype(a)>;
+        if constexpr (( std::is_pointer_v<Arg> && !std::is_pointer_v<U>) ||
+                      (!std::is_pointer_v<Arg> &&  std::is_pointer_v<U>))
+        {
+            std::cout << "Buffer type can not be assigned to Init type" << std::endl;
+            return;
+        }
+        
+        if constexpr (std::is_same_v<U, Arg>)
+        {
+            std::cout << "1" << std::endl;
+            Ret result = std::bind(funcPtr, *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), a)();
+            std::cout << "2" << std::endl;
+            obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
+            return;
+        }
 
-    try {
-        obj = std::bind(funcPtr, *std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get(), std::any_cast<Arg>(arg))();
-    } catch (std::exception e) {
-        std::cout << "Init Group bound function call failed" << std::endl;
-    }
+        if constexpr    (std::is_pointer_v<U>)
+        {
+            // pointer
+            if constexpr (std::is_convertible_v<std::remove_pointer_t<U>, std::remove_pointer_t<Arg>>)
+            {
+                std::cout << "To be implemented later" << std::endl;
+                // TO BE IMPLEMENTED LATER
+            } else {
+                std::cout << "Types do not match" << std::endl 
+                          << "Pointer types are not convertable" << std::endl;
+            }
+        } else {
+            // not pointer
+            if constexpr (std::is_convertible_v<U, Arg>)
+            {
+                std::cout << "3" << std::endl;
+                Ret result = std::bind(funcPtr, 
+                                        *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), 
+                                        static_cast<Arg>(a))();
+                std::cout << "4" << std::endl;
+                obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
+            } else {
+                std::cout << "Types do not match" << std::endl
+                          << "Datatypes are not convertable" << std::endl;
+            }
+        }
+    }, arg);
 }
 
 template <typename Ret, typename Class>
-void RunFunc(std::shared_ptr<std::any> obj, std::any arg, Ret (Class::*funcPtr)())
+void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)())
 {
-    if (obj.get()->type() != typeid(Class))
-        std::cout << "Init Group bound function class cast failed" << std::endl;
-
     try {
-        obj = std::bind(funcPtr, *std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get())();
-    } catch (std::exception e) {
-        std::cout << "Init Group bound function call failed" << std::endl;
+        std::cout << "5" << std::endl;
+        Ret result = std::bind(funcPtr,
+            *(std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get()))();
+        std::cout << "6" << std::endl;
+        obj = std::make_shared<std::any>(std::move(result));
+    }
+    catch ([[maybe_unused]] std::exception& e)
+    {
+        std::cout << "Init Group bound function call failed (no arg)" << std::endl;
+        std::cout << "ERROR: " << e.what() << std::endl;
     }
 }
 
 }; // namespace: dlnk
+

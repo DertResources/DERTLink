@@ -14,79 +14,101 @@ namespace dlnk
 // Allocators
 void DynamicBuffer::AllocateDouble(double*& ptr)
 {
+    std::cout << "11" << std::endl;
     buffer.emplace_back(std::make_any<double>(0.0));
     ptr = std::any_cast<double>(&(buffer.back()));
     bufferDescription.push_back({buffer.size(), DataType::DOUBLE});
+    std::cout << "12" << std::endl;
 }
 
 void DynamicBuffer::AllocateFloat(float*& ptr)
 {
+    std::cout << "13" << std::endl;
     buffer.emplace_back(std::make_any<float>(0.0f));
     ptr = std::any_cast<float>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::FLOAT });
+    std::cout << "14" << std::endl;
 }
 
 void DynamicBuffer::AllocateUInt8(uint8_t*& ptr)
 {
+    std::cout << "15" << std::endl;
     buffer.emplace_back(std::make_any<uint8_t>(0));
     ptr = std::any_cast<uint8_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::UINT8 });
+    std::cout << "16" << std::endl;
 }
 
 void DynamicBuffer::AllocateUInt16(uint16_t*& ptr)
 {
+    std::cout << "17" << std::endl;
     buffer.emplace_back(std::make_any<uint16_t>(0));
     ptr = std::any_cast<uint16_t>(&(buffer.back()));
     bufferDescription.push_back({buffer.size(), DataType::UINT16});
+    std::cout << "18" << std::endl;
 }
 
 void DynamicBuffer::AllocateUInt32(uint32_t*& ptr)
 {
+    std::cout << "19" << std::endl;
     buffer.emplace_back(std::make_any<uint32_t>(0));
     ptr = std::any_cast<uint32_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::UINT32 });
+    std::cout << "20" << std::endl;
 }
 
 void DynamicBuffer::AllocateUInt64(uint64_t*& ptr)
 {
+    std::cout << "21" << std::endl;
     buffer.emplace_back(std::make_any<uint64_t>(0));
     ptr = std::any_cast<uint64_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::UINT64 });
+    std::cout << "22" << std::endl;
 }
 
 void DynamicBuffer::AllocateInt8(int8_t*& ptr)
 {
+    std::cout << "23" << std::endl;
     buffer.emplace_back(std::make_any<int8_t>(0));
     ptr = std::any_cast<int8_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::INT8 });
+    std::cout << "24" << std::endl;
 }
 
 void DynamicBuffer::AllocateInt16(int16_t*& ptr)
 {
+    std::cout << "25" << std::endl;
     buffer.emplace_back(std::make_any<int16_t>(0));
     ptr = std::any_cast<int16_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::INT16 });
+    std::cout << "26" << std::endl;
 }
 
 void DynamicBuffer::AllocateInt32(int32_t*& ptr)
 {
+    std::cout << "27" << std::endl;
     buffer.emplace_back(std::make_any<int32_t>(0));
     ptr = std::any_cast<int32_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::INT32 });
+    std::cout << "28" << std::endl;
 }
 
 void DynamicBuffer::AllocateInt64(int64_t*& ptr)
 {
+    std::cout << "29" << std::endl;
     buffer.emplace_back(std::make_any<int64_t>(0));
     ptr = std::any_cast<int64_t>(&(buffer.back()));
     bufferDescription.push_back({ buffer.size(), DataType::INT64 });
+    std::cout << "30" << std::endl;
 }
 
 void DynamicBuffer::AllocateBool(bool*& ptr)
 {
+    std::cout << "31" << std::endl;
     buffer.emplace_back(std::make_any<bool>(false));
     ptr = std::any_cast<bool>(&(buffer.back()));
     bufferDescription.push_back({buffer.size(), DataType::BOOL});
+    std::cout << "32" << std::endl;
 }
 
 void DynamicBuffer::AllocateString(uint8_t& stringId)
@@ -110,7 +132,7 @@ void DynamicBuffer::ExportBytes(ByteVector& expBuff)
     expBuff.clear();
     // Write number of strings
     serial::write_u8_be(expBuff, static_cast<uint8_t>(string_alloc_buffer.size()));
-
+    std::cout << "33" << std::endl;
     // write out every stack value
     std::for_each(bufferDescription.begin(), bufferDescription.end(),
     [&](std::pair<size_t, DataType>& entryDescription) {
@@ -140,6 +162,7 @@ void DynamicBuffer::ExportBytes(ByteVector& expBuff)
         default:
             std::cout << "Error: Dynamic Buffer Export Bytes unknown type" << std::endl;
         }
+        std::cout << "34" << std::endl;
     });
     // write all strings
     std::for_each(string_alloc_buffer.begin(), string_alloc_buffer.end(),
@@ -151,7 +174,7 @@ void DynamicBuffer::ExportBytes(ByteVector& expBuff)
 void DynamicBuffer::ImportBytes(const Byte*& cur)
 {
     size_t stringCount = static_cast<size_t>(serial::read_u8_be(cur));
-
+    std::cout << "35" << std::endl;
     std::for_each(bufferDescription.begin(), bufferDescription.end(),
     [&](std::pair<size_t, DataType>& entryDescription) {
         switch (entryDescription.second) {
@@ -192,6 +215,7 @@ void DynamicBuffer::ImportBytes(const Byte*& cur)
             std::cout << "Error: Dynamic Buffer Import Bytes unknown type" << std::endl;
         }
         });
+        std::cout << "36" << std::endl;
     for (size_t stringId = 0; stringId < stringCount; stringId++) {
         string_alloc_buffer[stringId] = serial::read_string(cur);
     }

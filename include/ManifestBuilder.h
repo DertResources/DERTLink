@@ -81,7 +81,10 @@ private:
     DynamicBuffer& dbDesiredState;
     DynamicBuffer& dbFeedback;
 
-    typedef std::variant<uint8_t  , uint8_t *,
+    
+
+}; // class end
+typedef std::variant<uint8_t  , uint8_t *,
                          uint16_t , uint16_t*,
                          uint32_t , uint32_t*,
                          uint64_t , uint64_t*,
@@ -93,7 +96,4 @@ private:
                          float    , float   *,
                          double   , double  *,
                          std::string> AllTypes;
-
-}; // class end
-
 }; // namespace: dlnk  

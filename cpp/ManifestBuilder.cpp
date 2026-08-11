@@ -36,14 +36,20 @@ bool ManifestBuilder::ValidateManifest()
         // find device
         ShortDev DeviceMatch;
         if (!DeviceDictonary::FindShortDevice(shortDeviceDictonary, DeviceMatch, db.GetDeviceName()))
+        {
+            std::cout << "Manifest Error: Device Not Found" << std::endl;
             return false;
+        }
         // check every device entry
         return std::all_of(db.GetEntryManifests().begin(), db.GetEntryManifests().end(),
         [&](EntryManifest& em) -> bool{
             // find entry
             DataEntryPtr dataEntryMatch;
             if(!DeviceDictonary::FindShortDataEntry(DeviceMatch, dataEntryMatch, em.entryName))
+            {
                 return false;
+                std::cout << "Manifest Error: Entry Not Found" << std::endl; 
+            }
             if (!CheckDataDirection(dataEntryMatch)) {
                 DataDirectionError();
                 return false;
