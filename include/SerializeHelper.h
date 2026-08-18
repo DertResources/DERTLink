@@ -1,4 +1,5 @@
 #pragma once
+#include "DERTLink/include/DebugTracer.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -18,17 +19,20 @@ namespace serial
 // write 8,16,32,64
 inline void write_u8_be(ByteVector& buf, uint8_t v)
 {
+    SCOPE_TRACE("serial::write_u8_be");
     buf.push_back(static_cast<Byte>(v));
 }
 
 inline void write_u16_be(ByteVector& buf, uint16_t v)
 {
+    SCOPE_TRACE("serial::write_u16_be");
     buf.push_back(static_cast<Byte>(v >> 8));
     buf.push_back(static_cast<Byte>(v));
 }
 
 inline void write_u32_be(ByteVector& buf, uint32_t v)
 {
+    SCOPE_TRACE("serial::write_u32_be");
     buf.push_back(static_cast<Byte>(v >> 24));
     buf.push_back(static_cast<Byte>(v >> 16));
     buf.push_back(static_cast<Byte>(v >> 8));
@@ -37,6 +41,7 @@ inline void write_u32_be(ByteVector& buf, uint32_t v)
 
 inline void write_u64_be(ByteVector& buf, uint64_t v)
 {
+    SCOPE_TRACE("serial::write_u64_be");
     buf.push_back(static_cast<Byte>(v >> 56));
     buf.push_back(static_cast<Byte>(v >> 48));
     buf.push_back(static_cast<Byte>(v >> 40));
@@ -51,13 +56,29 @@ inline void write_u64_be(ByteVector& buf, uint64_t v)
 // WRITE UINT 8, 16, 32, 64
 // // // // // // // // // // // // // // // // // // // // // 
 
-inline void write_i8_be(ByteVector& buf, int8_t v) { write_u8_be(buf, static_cast<uint8_t>(v)); }
+inline void write_i8_be(ByteVector& buf, int8_t v)
+{
+    SCOPE_TRACE("serial::write_i8_be");
+    write_u8_be(buf, static_cast<uint8_t>(v));
+}
 
-inline void write_i16_be(ByteVector& buf, int16_t v) { write_u16_be(buf, static_cast<uint16_t>(v)); }
+inline void write_i16_be(ByteVector& buf, int16_t v)
+{
+    SCOPE_TRACE("serial::write_i16_be");
+    write_u16_be(buf, static_cast<uint16_t>(v));
+}
 
-inline void write_i32_be(ByteVector& buf, int32_t v) { write_u32_be(buf, static_cast<uint32_t>(v)); }
+inline void write_i32_be(ByteVector& buf, int32_t v)
+{
+    SCOPE_TRACE("serial::write_i32_be");
+    write_u32_be(buf, static_cast<uint32_t>(v));
+}
 
-inline void write_i64_be(ByteVector& buf, int64_t v) { write_u64_be(buf, static_cast<uint64_t>(v)); }
+inline void write_i64_be(ByteVector& buf, int64_t v)
+{
+    SCOPE_TRACE("serial::write_i64_be");
+    write_u64_be(buf, static_cast<uint64_t>(v));
+}
 
 // // // // // // // // // // // // // // // // // // // // // 
 // READ UINT 8, 16, 32, 64
@@ -65,6 +86,7 @@ inline void write_i64_be(ByteVector& buf, int64_t v) { write_u64_be(buf, static_
 
 inline uint8_t read_u8_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_u8_be");
     const Byte* begin = cur;
     cur += 1;
     return Byte(begin[0]);
@@ -72,6 +94,7 @@ inline uint8_t read_u8_be(const Byte*& cur)
 
 inline uint16_t read_u16_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_u16_be");
     const Byte* begin = cur;
     cur += 2;
     return (uint16_t(begin[0]) << 8 |
@@ -80,6 +103,7 @@ inline uint16_t read_u16_be(const Byte*& cur)
 
 inline uint32_t read_u32_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_u32_be");
     const Byte* begin = cur;
     cur += 4;
     return (uint32_t(begin[0]) << 24 |
@@ -90,6 +114,7 @@ inline uint32_t read_u32_be(const Byte*& cur)
 
 inline uint64_t read_u64_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_u64_be");
     const Byte* begin = cur;
     cur += 8;
     return (uint64_t(begin[0]) << 56 |
@@ -106,24 +131,42 @@ inline uint64_t read_u64_be(const Byte*& cur)
 // READ INT 8, 16, 32, 64
 // // // // // // // // // // // // // // // // // // // // // 
 
-inline int8_t read_i8_be(const Byte*& cur) { return static_cast<int8_t>(read_u8_be(cur)); }
+inline int8_t read_i8_be(const Byte*& cur)
+{
+    SCOPE_TRACE("serial::read_i8_be");
+    return static_cast<int8_t>(read_u8_be(cur));
+}
 
-inline int16_t read_i16_be(const Byte*& cur) { return static_cast<int16_t>(read_u16_be(cur)); }
+inline int16_t read_i16_be(const Byte*& cur)
+{
+    SCOPE_TRACE("serial::read_i16_be");
+    return static_cast<int16_t>(read_u16_be(cur));
+}
 
-inline int32_t read_i32_be(const Byte*& cur) { return static_cast<int32_t>(read_u32_be(cur)); }
+inline int32_t read_i32_be(const Byte*& cur)
+{
+    SCOPE_TRACE("serial::read_i32_be");
+    return static_cast<int32_t>(read_u32_be(cur));
+}
 
-inline int64_t read_i64_be(const Byte*& cur) { return static_cast<int64_t>(read_u64_be(cur)); }
+inline int64_t read_i64_be(const Byte*& cur)
+{
+    SCOPE_TRACE("serial::read_i64_be");
+    return static_cast<int64_t>(read_u64_be(cur));
+}
 
 // // // // // // // // // // // // // // // // // // // // // 
 // WRITE 
 // // // // // // // // // // // // // // // // // // // // // 
 inline void write_bool_be(ByteVector& buf, bool v)
 {
+    SCOPE_TRACE("serial::write_bool_be");
     write_u8_be(buf, static_cast<uint8_t>(v? 1 : 0));
 }
 
 inline void write_float_be(ByteVector& buf, float v)
 {
+    SCOPE_TRACE("serial::write_float_be");
     uint32_t val;
     std::memcpy(&val, &v, sizeof(uint32_t));
     write_u32_be(buf, val);
@@ -131,6 +174,7 @@ inline void write_float_be(ByteVector& buf, float v)
 
 inline void write_double_be(ByteVector& buf, double v)
 {
+    SCOPE_TRACE("serial::write_double_be");
     uint64_t val;
     std::memcpy(&val, &v, sizeof(uint64_t));
     write_u64_be(buf, val);
@@ -139,6 +183,7 @@ inline void write_double_be(ByteVector& buf, double v)
 
 inline void write_string(ByteVector& buf, const std::string& v)
 {
+    SCOPE_TRACE("serial::write_string");
     std::string adjusted_v = v;
     size_t len = v.length();
     if (len > 255)
@@ -161,11 +206,13 @@ inline void write_string(ByteVector& buf, const std::string& v)
 
 inline bool read_bool_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_bool_be");
     return static_cast<bool>(read_u8_be(cur));
 }
 
 inline float read_float_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_float_be");
     uint32_t val = read_u32_be(cur);
     float v;
     std::memcpy(&v, &val, sizeof(uint32_t));
@@ -174,6 +221,7 @@ inline float read_float_be(const Byte*& cur)
 
 inline double read_double_be(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_double_be");
     uint64_t val = read_u64_be(cur);
     double v;
     std::memcpy(&v, &val, sizeof(uint64_t));
@@ -182,6 +230,7 @@ inline double read_double_be(const Byte*& cur)
 
 inline std::string read_string(const Byte*& cur)
 {
+    SCOPE_TRACE("serial::read_string");
     uint8_t len = read_u8_be(cur);
     std::string out(reinterpret_cast<const char*>(cur), len);
     cur += len;
@@ -191,7 +240,7 @@ inline std::string read_string(const Byte*& cur)
 template<typename G>
 void AutomaticWrite(ByteVector& BV, std::any data)
 {
-    std::cout << "7" << std::endl;
+    SCOPE_TRACE("serial::AutomaticWrite");
     if      constexpr (std::is_same_v<std::decay_t<G>, bool       >) write_bool_be    (BV, std::any_cast<bool         >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, uint8_t    >) write_u8_be      (BV, std::any_cast<uint8_t      >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, uint16_t   >) write_u16_be     (BV, std::any_cast<uint16_t     >(data));
@@ -204,7 +253,6 @@ void AutomaticWrite(ByteVector& BV, std::any data)
     else if constexpr (std::is_same_v<std::decay_t<G>, float      >) write_float_be   (BV, std::any_cast<float        >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, double     >) write_double_be  (BV, std::any_cast<double       >(data));
     else if constexpr (std::is_same_v<std::decay_t<G>, std::string>) write_string     (BV, std::any_cast<std::string  >(data));
-    std::cout << "8" << std::endl;
 }
 
 }; // namespace: serial

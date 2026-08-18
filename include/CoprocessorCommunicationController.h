@@ -33,47 +33,11 @@ public:
     {}
     ManifestBuilder& GetManifestBuilder() {return MB;}
     DeviceDictonary& GetDeviceDictonary() {return DD;}
-    void StartCommunication()
-    {
-        // Fill Short Device Dictonary when the DD is full
-        DeviceDictonary::FillShortDevVector(DD, SDV);
-        DeviceDictonary::SortShortDevVector(SDV);
-    }
+    void StartCommunication();
 
-    /**
-     * Writes out the Device Dictonary for checking
-     */
-    void StageOneHandshake_ToBuffer()
-    {
-        ClearBuffer();
-        //Message Header
-        CM::WriteMessageType(BV, MT::HANDSHAKE_STEP_ONE);
+    void StageOneHandshake_ToBuffer();
 
-        //device dictonary
-        CM::WriteMessageBodySignature(BV, MBS::DEVICE_DICTONARY);
-        DD.WriteToBuffer(BV);
-
-        //end of message
-        CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
-
-        CM::SendMessage(BV);
-    }
-
-    void StageTwoHandshake_ToBuffer()
-    {
-        ClearBuffer();
-        //Message Header
-        CM::WriteMessageType(BV, MT::HANDSHAKE_STEP_TWO);
-
-        //Manifest
-        CM::WriteMessageBodySignature(BV, MBS::MANIFEST);
-        MB.WriteManifestToBuffer(BV);
-
-        //end of message
-        CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
-
-        CM::SendMessage(BV);
-    }
+    void StageTwoHandshake_ToBuffer();
 
     void ClearBuffer() {BV.clear();}
 

@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <cstdint>
 #include "../include/DataEntry.h"
+#include "DERTLink/include/DebugTracer.h"
 #include "SerializeHelper.h"
 #include <iostream>
 
@@ -60,20 +61,12 @@ public:
     template<typename T, std::enable_if_t<
         is_variant_member_v<T, EntryDataVariant> &&
         !std::is_convertible_v<T, std::string>, int> = 0 >
-    inline DeviceBuilder & AssignData(std::string DataEntryName, T value)
-    { 
-        entryManifests.emplace_back(DataEntryName, value);
-        return *this;
-    }
+    DeviceBuilder & AssignData(std::string DataEntryName, T value);
 
     // String and const char* 
     template<typename T, std::enable_if_t<
         std::is_convertible_v<T, std::string>, int> = 0 >
-    inline DeviceBuilder & AssignData(std::string DataEntryName, T value)
-    {
-        entryManifests.emplace_back(DataEntryName, std::string(value));
-        return *this;
-    }
+    DeviceBuilder & AssignData(std::string DataEntryName, T value);
 
     // int literals -> int32_t
     DeviceBuilder& AssignData(std::string DataEntryName, int value);
@@ -95,3 +88,5 @@ private:
 };
 
 }; // namespace dlnk
+
+#include "../cpp/DeviceBuilder.tpp"

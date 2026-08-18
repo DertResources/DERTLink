@@ -77,29 +77,19 @@ public:
     inline DataEntry& SetByteOffset    (uint16_t      __byteOffset) {byteOffset = __byteOffset ; return *this;}
 
     inline std::string GetName () { return this->name; }
+    
     inline DataDirection GetDataDirection() { return this->direction; }
+
     inline DataType GetDataType() { return this->dataType; }
 
-
     void WriteToBuffer(ByteVector& byteBuffer);
+
     void ReadFromBuffer(const Byte*& cur);
+
     void Print(uint8_t tabs = 0) const;
+
     template<typename G>
-    DataEntry& SetDataType() {
-             if constexpr (std::is_same_v<G, bool       >) dataType = DataType::BOOL   ;
-        else if constexpr (std::is_same_v<G, uint8_t    >) dataType = DataType::UINT8  ;
-        else if constexpr (std::is_same_v<G, uint16_t   >) dataType = DataType::UINT16 ;
-        else if constexpr (std::is_same_v<G, uint32_t   >) dataType = DataType::UINT32 ;
-        else if constexpr (std::is_same_v<G, uint64_t   >) dataType = DataType::UINT64 ;
-        else if constexpr (std::is_same_v<G, int8_t     >) dataType = DataType::INT8   ;
-        else if constexpr (std::is_same_v<G, int16_t    >) dataType = DataType::INT16  ;
-        else if constexpr (std::is_same_v<G, int32_t    >) dataType = DataType::INT32  ;
-        else if constexpr (std::is_same_v<G, int64_t    >) dataType = DataType::INT64  ;
-        else if constexpr (std::is_same_v<G, float      >) dataType = DataType::FLOAT  ;
-        else if constexpr (std::is_same_v<G, double     >) dataType = DataType::DOUBLE ;
-        else if constexpr (std::is_same_v<G, std::string>) dataType = DataType::STRING ;
-        return *this;
-    }
+    DataEntry& SetDataType();
 };
 
 typedef std::variant<DataEntry<bool>, 

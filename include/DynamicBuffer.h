@@ -15,15 +15,7 @@ namespace dlnk
 class DynamicBuffer
 {
 private:
-    inline void AllocateBytes(size_t byteCount, size_t& byteOffset)
-    {
-        // idfk some computer bullshit
-        stackSize += byteCount;
-        size_t aligned = (buffer.size() + 7) & ~7;
-        size_t padding = aligned - buffer.size();
-        buffer.resize(buffer.size() + padding + byteCount);
-        byteOffset = aligned;
-    }
+    void AllocateBytes(size_t byteCount, size_t& byteOffset);
     // buffer is a deque so that pointers remain valid on resize
     std::vector<std::pair<size_t, DataType>> bufferDescription;
     std::vector<std::string> string_alloc_buffer;

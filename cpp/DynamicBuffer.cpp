@@ -12,6 +12,17 @@
 
 namespace dlnk
 {
+void DynamicBuffer::AllocateBytes(size_t byteCount, size_t& byteOffset)
+{
+    SCOPE_TRACE("DynamicBuffer::AllocateBytes");
+    // idfk some computer bullshit
+    stackSize += byteCount;
+    size_t aligned = (buffer.size() + 7) & ~7;
+    size_t padding = aligned - buffer.size();
+    buffer.resize(buffer.size() + padding + byteCount);
+    byteOffset = aligned;
+}
+
 // Allocators
 void DynamicBuffer::AllocateDouble(double*& ptr)
 {

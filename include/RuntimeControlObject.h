@@ -5,6 +5,7 @@
 #include "../include/DeviceBuilder.h"
 #include "../include/AutoGenFile.h"
 #include "../include/ManifestBuilder.h"
+#include "DERTLink/include/DebugTracer.h"
 #include "fmt/base.h"
 
 #include <variant>
@@ -30,6 +31,7 @@ namespace dlnk
 template<typename Func>
 void allocate(Func& func, DynamicBuffer& db, DataType dt)
 {
+    SCOPE_TRACE("dlnk::allocate");
     switch (dt) {
     case DataType::BOOL:
         bool* pBool;
@@ -92,7 +94,7 @@ void allocate(Func& func, DynamicBuffer& db, DataType dt)
         func(pUInt64);
         break;
     default:
-        std::cout << "Error: Data Type not found" << std::endl;
+        DISPLAY_ERROR("Error: Data Type not found");
     }
 }
 
@@ -105,6 +107,7 @@ void input(Func&& func,
         DynamicBuffer& dbDesiredState,
         DeviceBuilder& db)
 {
+    SCOPE_TRACE("dlnk::input");
     if constexpr (!std::is_same<T, const char*>())
     {
         func(_key);
@@ -137,12 +140,10 @@ void input(Func&& func,
             });
             // Check if search didnt find result
             if(It == a.end())
-                std::cout << "Error: Entry manifest name not found in initalization pass"
-                          << std::endl;
+                DISPLAY_ERROR("Error: Entry manifest name not found in initalization pass");
             // Check if found entry has value, which it should at this point
             if(!(It->entryData.has_value()))
-                std::cout << "Error: Entry manifest does not have value at initalization pass when type is INIT"
-                          << std::endl;
+                DISPLAY_ERROR("Error: Entry manifest does not have value at initalization pass when type is INIT");
             std::visit([&func](auto& data){
                 func(data);
             }, It->entryData.value());
@@ -162,20 +163,19 @@ void input(Func&& func,
 template <typename Ret, typename Class, typename Arg>
 void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
 {
+    SCOPE_TRACE("dlnk::RunFunc (one arg)");
     std::visit([&](auto& a){
         using U = std::decay_t<decltype(a)>;
         if constexpr (( std::is_pointer_v<Arg> && !std::is_pointer_v<U>) ||
                       (!std::is_pointer_v<Arg> &&  std::is_pointer_v<U>))
         {
-            std::cout << "Buffer type can not be assigned to Init type" << std::endl;
+            DISPLAY_ERROR("Buffer type can not be assigned to Init type");
             return;
         }
         
         if constexpr (std::is_same_v<U, Arg>)
         {
-            std::cout << "1" << std::endl;
             Ret result = std::bind(funcPtr, *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), a)();
-            std::cout << "2" << std::endl;
             obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
             return;
         }
@@ -185,25 +185,21 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
             // pointer
             if constexpr (std::is_convertible_v<std::remove_pointer_t<U>, std::remove_pointer_t<Arg>>)
             {
-                std::cout << "To be implemented later" << std::endl;
+                DISPLAY_ERROR("To be implemented later");
                 // TO BE IMPLEMENTED LATER
             } else {
-                std::cout << "Types do not match" << std::endl 
-                          << "Pointer types are not convertable" << std::endl;
+                DISPLAY_ERROR("Types do not match, Pointer types are not convertable");
             }
         } else {
             // not pointer
             if constexpr (std::is_convertible_v<U, Arg>)
             {
-                std::cout << "3" << std::endl;
                 Ret result = std::bind(funcPtr, 
                                         *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), 
                                         static_cast<Arg>(a))();
-                std::cout << "4" << std::endl;
                 obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
             } else {
-                std::cout << "Types do not match" << std::endl
-                          << "Datatypes are not convertable" << std::endl;
+                DISPLAY_ERROR("Types do not match, Datatypes are not convertable");
             }
         }
     }, arg);
@@ -212,6 +208,7 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
 template <typename Ret, typename Class>
 void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)())
 {
+    SCOPE_TRACE("dlnk::RunFunc (no arg)");
     try {
         std::cout << "5" << std::endl;
         Ret result = std::bind(funcPtr,
@@ -219,7 +216,7 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
         std::cout << "6" << std::endl;
         obj = std::make_shared<std::any>(std::move(result));
     }
-    catch ([[maybe_unused]] std::exception& e)
+    catch (std::exception& e)
     {
         std::cout << "Init Group bound function call failed (no arg)" << std::endl;
         std::cout << "ERROR: " << e.what() << std::endl;

@@ -35,15 +35,9 @@ public:
 
     static MESSAGE_BODY_SIGNATURE ReadMessageBodySignature(const Byte*& cur);
 
-    static void SendMessage(ByteVector& BV)
-    {
-        buffer = BV;
-    }
+    static void SendMessage(ByteVector& BV) { buffer = BV; }
 
-    static ByteVector& ReciveMessage()
-    {
-        return buffer;
-    }
+    static ByteVector& ReciveMessage() { return buffer; }
 private:
     static std::vector<uint8_t> message_type_map;
 

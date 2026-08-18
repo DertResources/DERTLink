@@ -11,33 +11,9 @@ namespace dlnk
 class TracerScopeInfo
 {
 public:
-    TracerScopeInfo(std::string _scopeName, uint32_t _lineNumber, std::string _filename)
-    : scopeName{_scopeName}
-    , lineNumber{_lineNumber}
-    {
-        std::string::size_type pos1 = _filename.find('\\' + rootDirName + '\\');
-        if(pos1 != std::string::npos)
-        {
-            uint32_t startlen = pos1 + rootDirName.size() + 2;
-            filename = _filename.substr(startlen, filename.size()-startlen);
-            return;
-        };
+    TracerScopeInfo(std::string _scopeName, uint32_t _lineNumber, std::string _filename);
 
-        std::string::size_type pos2 = _filename.find('\\' + rootDirName + '\\');
-        if(pos2 != std::string::npos)
-        {
-            uint32_t startlen = pos2 + rootDirName.size() + 2;
-            filename = _filename.substr(startlen, filename.size()-startlen);
-            return;
-        }
-
-        std::cout << "DEBUG TRACER FAILURE: Root directory not found" << std::endl;
-    }
-
-    std::string ToString()
-    {
-        return scopeName + ": line=" + std::to_string(lineNumber) + " File=" + filename;
-    }
+    std::string ToString();
 private:
     std::string scopeName;
     std::string filename;
@@ -48,46 +24,16 @@ private:
 class DebugTracer
 {
 public:
-    DebugTracer()
-    {
-        scopeStack.reserve(reservedStackDepth);
-    }
-    bool PrintError(std::string errorMessage)
-    {
-        std::string message;
-        for(TracerScopeInfo* curScope : scopeStack)
-        {
-            if(curScope)
-                message += "> " + curScope->ToString() + '\n';
-            else
-                return false;
-        }
+    DebugTracer();
 
-        std::cout << message << "\33[91m" << errorMessage << "\33[m" << std::endl;
-        return true;
-    }
-    bool PrintWarning(std::string warningMessage)
-    {
-        std::string message;
-        for(TracerScopeInfo* curScope : scopeStack)
-        {
-            if(curScope)
-                message += "> " + curScope->ToString() + '\n';
-            else
-                return false;
-        }
+    bool PrintError(std::string errorMessage);
 
-        std::cout << message << "\33[93m" << warningMessage << "\33[m" << std::endl;
-        return true;
-    }
-    void AddScope(TracerScopeInfo* ptr)
-    {
-        scopeStack.push_back(ptr);
-    }
-    void RemoveLastScope()
-    {
-        scopeStack.pop_back();
-    }
+    bool PrintWarning(std::string warningMessage);
+
+    void AddScope(TracerScopeInfo* ptr);
+    
+    void RemoveLastScope();
+    
     static DebugTracer Instance;
 private:
     constexpr static uint8_t reservedStackDepth = 10;
@@ -97,15 +43,9 @@ private:
 class TracerScope_Guard
 {
 public:
-    TracerScope_Guard(std::unique_ptr<TracerScopeInfo>& ptr)
-    {
-        DebugTracer::Instance.AddScope(ptr.get());
-    }
+    TracerScope_Guard(std::unique_ptr<TracerScopeInfo>& ptr);
 
-    ~TracerScope_Guard()
-    {
-        DebugTracer::Instance.RemoveLastScope();
-    }
+    ~TracerScope_Guard();
 
     TracerScope_Guard(const TracerScope_Guard& other) = delete;
     TracerScope_Guard(TracerScope_Guard&& other) = delete;

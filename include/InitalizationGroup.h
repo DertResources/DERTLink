@@ -30,11 +30,7 @@ public:
     {}
 
     template<typename T>
-    inline InitalizationGroup& AddDataEntry(std::string _name, DataDirection _direction)
-    {
-        GroupDataEntries.push_back(std::move(DataEntry<T>(_name, _direction)));
-        return *this;
-    }
+    inline InitalizationGroup& AddDataEntry(std::string _name, DataDirection _direction);
 
     InitalizationGroup& SetInitalizationCmd(InitFuncType func);
 
@@ -58,3 +54,5 @@ private:
 };
 
 }; // namespace: dlnk
+
+#include "../cpp/InitalizationGroup.tpp"

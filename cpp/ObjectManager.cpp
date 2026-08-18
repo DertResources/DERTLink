@@ -24,4 +24,11 @@ void ObjectManager::ConstructAllControlObjects()
     }
 }
 
+void ObjectManager::SetupMaps(DeviceDictonary dd)
+{
+    SCOPE_TRACE("ObjectManager::SetupMaps");
+    createInfoOperate = dd.GetCreateInfoOperateMap();
+    ControlObjOperate = dd.GetControlObjectOperateMap();
+}
+
 };
