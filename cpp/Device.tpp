@@ -3,7 +3,7 @@
 #include "../include/InitalizationGroup.h"
 #include <type_traits>
 #include <utility>
-
+#include "../include/DebugTracer.h"
 
 namespace dlnk
 {
@@ -11,6 +11,7 @@ namespace dlnk
 template <typename... Args>
 InitalizationGroup& Device::AddIntializationGroup(Args... _args)
 {
+    SCOPE_TRACE("Device::AddIntializationGroup");
     static_assert(std::is_constructible_v<InitalizationGroup, Args...>,
         "AddIntializationGroup: cannot construct Device from the provided arguments. "
         "Check that the argument types match a Device constructor.");

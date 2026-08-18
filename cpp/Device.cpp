@@ -9,7 +9,7 @@
 #include "../include/DataEntry.h"
 #include "../include/PortabilityHelper.h"
 #include <deque>
-
+#include "../include/DebugTracer.h"
 namespace dlnk
 {
 
@@ -20,6 +20,7 @@ Device::Device(std::string _devicename)
 
 void Device::WriteToBuffer(ByteVector& byteBuffer)
 {
+    SCOPE_TRACE("Device::WriteToBuffer");
     size_t totalEntries = std::accumulate(
         initalizationGroupVector.begin(),
         initalizationGroupVector.end(),
@@ -42,6 +43,7 @@ void Device::WriteToBuffer(ByteVector& byteBuffer)
 
 void Device::ReadFromBuffer(const Byte*& cur)
 {
+    SCOPE_TRACE("Device::ReadFromBuffer");
     size_t DataEntryCount = serial::read_u16_be(cur);
     deviceName = serial::read_string(cur);
     initalizationGroupVector.clear();
@@ -60,6 +62,7 @@ void Device::ReadFromBuffer(const Byte*& cur)
 
 void Device::Print(uint8_t tabs)
 {
+    SCOPE_TRACE("Device::Print");
     std::string tabString = std::string(tabs*2, ' ');
     print_t( tabString + "\033[91mDevice Name: \"" + deviceName + "\"\n");
     print_t( tabString + "[\033[m\n");
@@ -71,26 +74,31 @@ void Device::Print(uint8_t tabs)
 
 DeviceDictonary& Device::ExitDevice()
 {
+    SCOPE_TRACE("Device::ExitDevice");
     return *deviceDictonaryPtr;
 }
 
 std::string Device::GetName()
 {
+    SCOPE_TRACE("Device::GetName");
     return this->deviceName;
 }
 
 std::deque<InitalizationGroup>& Device::GetInitaliztionGroupVector()
 {
+    SCOPE_TRACE("Device::GetInitaliztionGroupVector");
     return this->initalizationGroupVector;
 }
 
 void Device::SetAccessFunction(AccessFunc func)
 {
+    SCOPE_TRACE("Device::SetAccessFunction");
     createInfoAccessFunc = func;
 }
 
 void Device::SetDeviceDictonaryPtr(DeviceDictonary& ref)
 {
+    SCOPE_TRACE("Device::SetDeviceDictonaryPtr");
     deviceDictonaryPtr = &ref;
 }
 

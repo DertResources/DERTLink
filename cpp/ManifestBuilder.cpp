@@ -17,27 +17,29 @@
 #include "../include/DataEntry.h"
 #include "../include/InitalizationGroup.h"
 #include "../include/RuntimeControlObject.h"
-#include <ios>
 #include "../include/SerializeHelper.h"
+#include "../include/DebugTracer.h"
 
 namespace dlnk
 {
 
 DeviceBuilder& ManifestBuilder::BuildNewDevice(std::string deviceName)
 {
+    SCOPE_TRACE("ManifestBuilder::BuildNewDevice");
     deviceManifests.emplace_back(deviceName, this);
     return deviceManifests.back();
 }
 
 bool ManifestBuilder::ValidateManifest()
 {
+    SCOPE_TRACE("ManifestBuilder::ValidateManifest");
     return std::all_of(deviceManifests.begin(), deviceManifests.end(),
     [&](DeviceBuilder& db) -> bool {
         // find device
         ShortDev DeviceMatch;
         if (!DeviceDictonary::FindShortDevice(shortDeviceDictonary, DeviceMatch, db.GetDeviceName()))
         {
-            std::cout << "Manifest Error: Device Not Found" << std::endl;
+            DISPLAY_ERROR("Manifest Error: Device Not Found");
             return false;
         }
         // check every device entry
@@ -47,11 +49,11 @@ bool ManifestBuilder::ValidateManifest()
             DataEntryPtr dataEntryMatch;
             if(!DeviceDictonary::FindShortDataEntry(DeviceMatch, dataEntryMatch, em.entryName))
             {
+                DISPLAY_ERROR("Manifest Error: Entry Not Found");
                 return false;
-                std::cout << "Manifest Error: Entry Not Found" << std::endl; 
             }
             if (!CheckDataDirection(dataEntryMatch)) {
-                DataDirectionError();
+                DISPLAY_ERROR("Data Direction Wrong");
                 return false;
             }
             return DataDirectionSwitch(em, dataEntryMatch, [&](){ //Init
@@ -76,6 +78,7 @@ bool ManifestBuilder::ValidateManifest()
 
 bool ManifestBuilder::CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::CheckTypeMatching");
     return std::visit([&](auto& de) -> bool {
         return std::visit(overloaded {
             [&](std::string value) -> bool {
@@ -109,6 +112,7 @@ bool ManifestBuilder::CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep)
 
 void ManifestBuilder::ConvertDataTypes(EntryManifest& em, DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::ConvertDataTypes");
     std::visit([&](auto& de)
     {
         std::visit([&](auto& data) {
@@ -157,6 +161,7 @@ void ManifestBuilder::ConvertDataTypes(EntryManifest& em, DataEntryPtr& dep)
 
 bool ManifestBuilder::CheckDataDirection(DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::CheckDataDirection");
     return std::visit([&](auto& de) -> bool{
         return !(de.GetDataDirection() == DataDirection::INIT) ||
                !(de.GetDataDirection() == DataDirection::DESIREDSTATE ||
@@ -166,20 +171,17 @@ bool ManifestBuilder::CheckDataDirection(DataEntryPtr& dep)
 
 void ManifestBuilder::DataTypeError(DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::DataTypeError");
     std::visit([&](auto& de) {
-        std::cout << "data type not matched: ";
+        DISPLAY_ERROR("Data type not matched");
         PrintDataType(de.GetDataType());
         std::cout << std::endl;
     }, *dep);
 }
 
-void ManifestBuilder::DataDirectionError()
-{
-    std::cout << "Data Direction Wrong" << std::endl;
-}
-
 void ManifestBuilder::InitalizeControlObjects()
 {
+    SCOPE_TRACE("ManifestBuilder::InitalizeControlObjects");
     // for every device in the manifest
     std::for_each(deviceManifests.begin(), deviceManifests.end(),
     [&](DeviceBuilder& db){
@@ -244,6 +246,7 @@ bool ManifestBuilder::DataDirectionSwitch(EntryManifest& em,
                                           std::function<bool(void)> desiredFunc,
                                           std::function<bool(void)> feedbackFunc)
 {
+    SCOPE_TRACE("ManifestBuilder::DataDirectionSwitch");
     return std::visit([&](auto& de) -> bool {
         if (em.entryData.has_value())
             return initFunc();
@@ -256,11 +259,13 @@ bool ManifestBuilder::DataDirectionSwitch(EntryManifest& em,
 
 bool ManifestBuilder::IsInit(EntryManifest& em)
 {
+    SCOPE_TRACE("ManifestBuilder::IsInit");
     return em.entryData.has_value();
 }
 
 bool ManifestBuilder::IsFeedback(DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::IsFeedback");
     return std::visit([](auto& de) -> bool {
         return de.GetDataDirection() == DataDirection::FEEDBACK;
     },
@@ -269,6 +274,7 @@ bool ManifestBuilder::IsFeedback(DataEntryPtr& dep)
 
 bool ManifestBuilder::IsDesiredState(DataEntryPtr& dep)
 {
+    SCOPE_TRACE("ManifestBuilder::IsDesiredState");
     return std::visit([](auto& de) -> bool {
         return de.GetDataDirection() == DataDirection::DESIREDSTATE;
     },
@@ -277,6 +283,7 @@ bool ManifestBuilder::IsDesiredState(DataEntryPtr& dep)
 
 void ManifestBuilder::ReadManifestFromBuffer(const Byte*& cur)
 {
+    SCOPE_TRACE("ManifestBuilder::ReadManifestFromBuffer");
     uint8_t DeviceManifestCount = serial::read_u8_be(cur);
     deviceManifests.clear();
     for (size_t i = 0; i < DeviceManifestCount; i++) {
@@ -289,10 +296,16 @@ void ManifestBuilder::ReadManifestFromBuffer(const Byte*& cur)
 
 void ManifestBuilder::WriteManifestToBuffer(ByteVector& BV)
 {
+    SCOPE_TRACE("ManifestBuilder::WriteManifestToBuffer");
     bool result = ValidateManifest();
-    std::cout << "Is Manifest Valid: " << std::boolalpha
-              << result
-              << std::noboolalpha << std::endl;
+    if(!result)
+    {
+        DISPLAY_ERROR("Manifest not valid");
+        return;
+    }
+    // std::cout << "Is Manifest Valid: " << std::boolalpha
+    //           << result
+    //           << std::noboolalpha << std::endl;
 
     serial::write_u8_be(BV, static_cast<uint8_t>(deviceManifests.size()));
     for (DeviceBuilder& db : deviceManifests) {
@@ -303,6 +316,7 @@ void ManifestBuilder::WriteManifestToBuffer(ByteVector& BV)
 
 void ManifestBuilder::Print(int tabs)
 {
+    SCOPE_TRACE("ManifestBuilder::Print");
     std::cout << "Manifest:" << std::endl;
     for(DeviceBuilder& db : deviceManifests)
     {

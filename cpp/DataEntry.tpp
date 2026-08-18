@@ -5,7 +5,7 @@
 #include "../include/DataEntry.h"
 #include "../include/SerializeHelper.h"
 #include "../include/PortabilityHelper.h"
-
+#include "../include/DebugTracer.h"
 namespace dlnk
 {
 template<typename T>
@@ -14,12 +14,14 @@ DataEntry<T>::DataEntry(std::string _name, DataDirection _direction)
 , direction{_direction}
 , byteOffset{0}
 {
+    SCOPE_TRACE("DataEntry<T>::DataEntry");
     SetDataType<T>();
 }
 
 template<typename T>
 void DataEntry<T>::WriteToBuffer(ByteVector& byteBuffer)
 {
+    SCOPE_TRACE("DataEntry<T>::WriteToBuffer");
     serial::write_string(byteBuffer, name);
 
     Byte DataDescription = static_cast<Byte>(direction) << 4 |
@@ -30,6 +32,7 @@ void DataEntry<T>::WriteToBuffer(ByteVector& byteBuffer)
 template<typename T>
 void DataEntry<T>::ReadFromBuffer(const Byte*& cur)
 {
+    SCOPE_TRACE("DataEntry<T>::ReadFromBuffer");
     name = serial::read_string(cur);
     Byte DataDescription = serial::read_u8_be(cur);
     direction = DataDirection(static_cast<uint8_t>(DataDescription >> 4));
@@ -39,6 +42,7 @@ void DataEntry<T>::ReadFromBuffer(const Byte*& cur)
 template<typename T>
 void DataEntry<T>::Print(uint8_t tabs) const
 {
+    SCOPE_TRACE("DataEntry<T>::Print");
     std::string tabString = std::string(2*tabs, ' ');
     // Name
     print_t(tabString + "\033[92mData Entry: \"" + name + "\""  + "\033[32m\n");

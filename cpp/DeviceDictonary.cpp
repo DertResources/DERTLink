@@ -13,12 +13,14 @@
 #include <unordered_map>
 #include <functional>
 #include <vector>
+#include "../include/DebugTracer.h"
 
 namespace dlnk
 {
 
 bool DeviceDictonary::CompareDictonaries(DeviceDictonary& dd1, DeviceDictonary& dd2)
 {
+    SCOPE_TRACE("DeviceDictonary::CompareDictonaries");
     // Create Short Device Dictonaries
     ShortDevVector sdv1;
     ShortDevVector sdv2;
@@ -51,6 +53,7 @@ bool DeviceDictonary::CompareDictonaries(DeviceDictonary& dd1, DeviceDictonary& 
 
 void DeviceDictonary::WriteToBuffer(ByteVector& _byteVector)
 {
+    SCOPE_TRACE("DeviceDictonary::WriteToBuffer");
     serial::write_u8_be(_byteVector, static_cast<uint8_t>(Devices.size()));
     for (Device& _device : Devices) {
         _device.WriteToBuffer(_byteVector);
@@ -59,6 +62,7 @@ void DeviceDictonary::WriteToBuffer(ByteVector& _byteVector)
 
 void DeviceDictonary::ReadFromBuffer(const Byte*& cur)
 {
+    SCOPE_TRACE("DeviceDictonary::ReadFromBuffer");
     uint8_t deviceCount = serial::read_u8_be(cur);
     for(size_t i = 0; i < deviceCount; i++)
     {
@@ -68,12 +72,14 @@ void DeviceDictonary::ReadFromBuffer(const Byte*& cur)
 
 void DeviceDictonary::Print(uint8_t tabs)
 {
+    SCOPE_TRACE("DeviceDictonary::Print");
     for (Device& _device : Devices)
         _device.Print(tabs + 1);
 }
 
 void DeviceDictonary::FillShortDevVector(DeviceDictonary& DD, ShortDevVector& sdv)
 {
+    SCOPE_TRACE("DeviceDictonary::FillShortDevVector");
     std::for_each(DD.GetDeviceVector().begin(), DD.GetDeviceVector().end(),
         [&](Device& device) {
             ShortDev sd;
@@ -92,6 +98,7 @@ void DeviceDictonary::FillShortDevVector(DeviceDictonary& DD, ShortDevVector& sd
 
 void DeviceDictonary::SortShortDevVector(ShortDevVector& sdv)
 {
+    SCOPE_TRACE("DeviceDictonary::SortShortDevVector");
     // Sort Device Names
     std::sort(sdv.begin(), sdv.end(),
         [](ShortDev& sda, ShortDev& sdb) {
@@ -114,6 +121,7 @@ void DeviceDictonary::SortShortDevVector(ShortDevVector& sdv)
 
 bool DeviceDictonary::FindShortDevice(ShortDevVector& sdv, ShortDev& sdr, std::string targetName)
 {
+    SCOPE_TRACE("DeviceDictonary::FindShortDevice");
     auto devIt = std::lower_bound(sdv.begin(), sdv.end(), targetName,
         [](ShortDev& sd, std::string target) -> bool {
             return sd.DeviceName < target;
@@ -129,6 +137,7 @@ bool DeviceDictonary::FindShortDevice(ShortDevVector& sdv, ShortDev& sdr, std::s
 
 bool DeviceDictonary::FindShortDataEntry(ShortDev& sdr, DataEntryPtr& der, std::string targetName)
 {
+    SCOPE_TRACE("DeviceDictonary::FindShortDataEntry");
     int32_t idx = DeviceDictonary::FindDataEntryIndex(sdr, targetName);
     if (idx != -1)
     {
@@ -141,6 +150,7 @@ bool DeviceDictonary::FindShortDataEntry(ShortDev& sdr, DataEntryPtr& der, std::
 
 int32_t DeviceDictonary::FindDataEntryIndex(ShortDev& sdr, std::string targetName)
 {
+    SCOPE_TRACE("DeviceDictonary::FindDataEntryIndex");
     auto deMatchIt = std::lower_bound(sdr.DeviceEntryPtrs.begin(), sdr.DeviceEntryPtrs.end(), targetName,
         [](DataEntryVariant* dev, std::string target) -> bool {
             return std::visit([&](auto& de) {
@@ -157,21 +167,25 @@ int32_t DeviceDictonary::FindDataEntryIndex(ShortDev& sdr, std::string targetNam
 
 std::deque<Device>& DeviceDictonary::GetDeviceVector()
 {
+    SCOPE_TRACE("DeviceDictonary::GetDeviceVector");
     return this->Devices;
 }
 
 std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&)>> DeviceDictonary::GetCreateInfoOperateMap()
 {
+    SCOPE_TRACE("DeviceDictonary::GetCreateInfoOperateMap");
     return createInfoOperate;
 };
 
 std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&, std::vector<std::shared_ptr<std::any>>&)>> DeviceDictonary::GetControlObjectOperateMap()
 {
+    SCOPE_TRACE("DeviceDictonary::GetControlObjectOperateMap");
     return ControlObjOperate;
 };
 
 Device& DeviceDictonary::AddDevice(std::string deviceName)
 {
+    SCOPE_TRACE("DeviceDictonary::AddDevice");
     Devices.emplace_back(std::forward<std::string>(deviceName));
     Devices.back().SetDeviceDictonaryPtr(*this);
     

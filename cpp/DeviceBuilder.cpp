@@ -7,7 +7,7 @@
 #include "../include/SerializeHelper.h"
 #include <iostream>
 #include "../include/DataEntry.h"
-
+#include "../include/DebugTracer.h"
 
 
 namespace dlnk
@@ -15,27 +15,32 @@ namespace dlnk
 
 DeviceBuilder& DeviceBuilder::AssignData(std::string DataEntryName)
 {
+    SCOPE_TRACE("DeviceBuilder::AssignData");
     entryManifests.emplace_back(DataEntryName, std::nullopt);
     return *this;
 }
 
 ManifestBuilder& DeviceBuilder::ExitDeviceBuilder()
 {
+    SCOPE_TRACE("DeviceBuilder::ExitDeviceBuilder");
     return *parentptr;
 }
 
 std::vector<EntryManifest>& DeviceBuilder::GetEntryManifests()
 {
+    SCOPE_TRACE("DeviceBuilder::GetEntryManifests");
     return entryManifests;
 }
 
 std::string DeviceBuilder::GetDeviceName() const
 {
+    SCOPE_TRACE("DeviceBuilder::GetDeviceName");
     return deviceName;
 }
 
 void DeviceBuilder::WriteBuffer(ByteVector& BV)
 {
+    SCOPE_TRACE("DeviceBuilder::WriteBuffer");
     serial::write_u8_be(BV, static_cast<uint8_t>(entryManifests.size()));
     for (EntryManifest& em : entryManifests) {
         serial::write_string(BV, em.entryName);
@@ -53,6 +58,7 @@ void DeviceBuilder::WriteBuffer(ByteVector& BV)
 
 void DeviceBuilder::ReadBuffer(const Byte*& cur)
 {
+    SCOPE_TRACE("DeviceBuilder::ReadBuffer");
     uint8_t numOfEntries = serial::read_u8_be(cur);
     for(size_t i = 0; i < numOfEntries; i++)
     {
@@ -74,7 +80,7 @@ void DeviceBuilder::ReadBuffer(const Byte*& cur)
                 case 10: AssignData(entryName, serial::read_double_be(cur)); break;
                 case 11: AssignData(entryName, serial::read_string   (cur)); break;
                 default:
-                    std::cout << "ManifestBuilder ReadBuffer function caught unknown type" << std::endl;
+                    DISPLAY_ERROR("ManifestBuilder ReadBuffer function caught unknown type");
             }
         }
         else
@@ -84,6 +90,7 @@ void DeviceBuilder::ReadBuffer(const Byte*& cur)
 
 void DeviceBuilder::Print(int tabs)
 {
+    SCOPE_TRACE("DeviceBuilder::Print");
     std::string tabString = std::string(tabs * 2, ' ');
     std::cout << tabString << "Device Name: " << deviceName << std::endl;
     for (EntryManifest& em : entryManifests) {
@@ -100,6 +107,7 @@ void DeviceBuilder::Print(int tabs)
 // int literals -> int32_t
 DeviceBuilder& DeviceBuilder::AssignData(std::string DataEntryName, int value)
 {
+    SCOPE_TRACE("DeviceBuilder::AssignData");
     entryManifests.emplace_back(DataEntryName, static_cast<int32_t>(value));
     return *this;
 }
@@ -107,6 +115,7 @@ DeviceBuilder& DeviceBuilder::AssignData(std::string DataEntryName, int value)
 // bool explicit overload (prevents bool -> int ambiguity)
 DeviceBuilder& DeviceBuilder::AssignData(std::string DataEntryName, bool value)
 {
+    SCOPE_TRACE("DeviceBuilder::AssignData");
     entryManifests.emplace_back(DataEntryName, value);
     return *this;
 }
