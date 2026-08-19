@@ -19,16 +19,16 @@ Device& DeviceDictonary::AddDevice(std::string deviceName)
     Devices.back().SetDeviceDictonaryPtr(*this);
 
     if constexpr (!std::is_same<CreateInfoType, void>() && !std::is_same<CtrObjType, void>()) {
-        createInfoOperate[Devices.back().GetName()] = [](std::shared_ptr<std::any>& anyOpp) {
-            anyOpp = std::make_shared<std::any>(std::make_shared<CreateInfoType>());
+        createInfoOperate[Devices.back().GetName()] = [](std::any& anyOpp) {
+            anyOpp = std::make_shared<CreateInfoType>();
         };
 
-        ControlObjOperate[Devices.back().GetName()] = [](std::shared_ptr<std::any>& anyOpp, std::vector<std::shared_ptr<std::any>>& createInfoVector) {
+        ControlObjOperate[Devices.back().GetName()] = [](std::any& anyOpp, std::vector<std::any>& createInfoVector) {
             std::vector<CreateInfoType> civ = { };
-            for (std::shared_ptr<std::any>& ci : createInfoVector) {
-                civ.push_back(*(std::any_cast<std::shared_ptr<CreateInfoType>>(*ci.get()).get()));
+            for (std::any& ci : createInfoVector) {
+                civ.push_back(*(std::any_cast<std::shared_ptr<CreateInfoType>>(ci).get()));
             }
-            anyOpp = std::make_shared<std::any>(std::make_shared<CtrObjType>(civ));
+            anyOpp = std::make_shared<CtrObjType>(civ);
         };
     }
 

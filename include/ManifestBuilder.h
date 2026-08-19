@@ -10,7 +10,6 @@
 #include "../include/ObjectManager.h"
 #include "SerializeHelper.h"
 #include <functional>
-#include <iostream>
 
 
 namespace dlnk
@@ -49,7 +48,7 @@ public:
 
     void ReadManifestFromBuffer(const Byte*& cur);
 
-    void Print(int tabs = 0);
+    std::string Print(int tabs = 0);
 private:
 
     bool CheckTypeMatching(EntryManifest& em, DataEntryPtr& dep);

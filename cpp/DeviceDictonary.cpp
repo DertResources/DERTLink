@@ -70,11 +70,22 @@ void DeviceDictonary::ReadFromBuffer(const Byte*& cur)
     }
 }
 
-void DeviceDictonary::Print(uint8_t tabs)
+std::string DeviceDictonary::Print(uint8_t tabs)
 {
     SCOPE_TRACE("DeviceDictonary::Print");
+    std::string out = "";
     for (Device& _device : Devices)
-        _device.Print(tabs + 1);
+        out += _device.Print(tabs + 1);
+
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG(out);
+        return "";
+    }
+    else
+    {
+        return out;
+    }
 }
 
 void DeviceDictonary::FillShortDevVector(DeviceDictonary& DD, ShortDevVector& sdv)
@@ -171,13 +182,13 @@ std::deque<Device>& DeviceDictonary::GetDeviceVector()
     return this->Devices;
 }
 
-std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&)>> DeviceDictonary::GetCreateInfoOperateMap()
+std::unordered_map<std::string, std::function<void(std::any&)>> DeviceDictonary::GetCreateInfoOperateMap()
 {
     SCOPE_TRACE("DeviceDictonary::GetCreateInfoOperateMap");
     return createInfoOperate;
 };
 
-std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&, std::vector<std::shared_ptr<std::any>>&)>> DeviceDictonary::GetControlObjectOperateMap()
+std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> DeviceDictonary::GetControlObjectOperateMap()
 {
     SCOPE_TRACE("DeviceDictonary::GetControlObjectOperateMap");
     return ControlObjOperate;

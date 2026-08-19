@@ -30,6 +30,8 @@ public:
 
     bool PrintWarning(std::string warningMessage);
 
+    bool PrintDebug(std::string debugMessage);
+
     void AddScope(TracerScopeInfo* ptr);
     
     void RemoveLastScope();
@@ -63,5 +65,8 @@ dlnk::DebugTracer::Instance.PrintError(ERROR_MSG)
 
 #define DISPLAY_WARNING(WARNING_MSG) \
 dlnk::DebugTracer::Instance.PrintWarning(WARNING_MSG)
+
+#define DISPLAY_DEBUG(DEBUG_MSG) \
+dlnk::DebugTracer::Instance.PrintDebug(DEBUG_MSG)
 
 }; // namespace: dlnk

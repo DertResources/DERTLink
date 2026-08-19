@@ -79,7 +79,7 @@ public:
     std::string GetDeviceName() const;
     void WriteBuffer(ByteVector& BV);
     void ReadBuffer(const Byte*& cur);
-    void Print(int tabs = 0);
+    std::string Print(int tabs = 0);
 
 private:
     std::string deviceName;

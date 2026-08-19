@@ -15,16 +15,16 @@ class ObjectManager
 public:
     void SetupMaps(DeviceDictonary dd);
 
-    std::shared_ptr<std::any>& NewCreateInfo(std::string deviceName);
+    std::any& NewCreateInfo(std::string deviceName);
 
     void ConstructAllControlObjects();
 
 private:
-    std::unordered_map<std::string, std::vector<std::shared_ptr<std::any>>> createInfoVectors;
-    std::vector<std::shared_ptr<std::any>> controlObjectVector;
+    std::unordered_map<std::string, std::vector<std::any>> createInfoVectors;
+    std::vector<std::any> controlObjectVector;
 
-    std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&)>> createInfoOperate;
-    std::unordered_map<std::string, std::function<void(std::shared_ptr<std::any>&, std::vector<std::shared_ptr<std::any>>&)>> ControlObjOperate;
+    std::unordered_map<std::string, std::function<void(std::any&)>> createInfoOperate;
+    std::unordered_map<std::string, std::function<void(std::any&, std::vector<std::any>&)>> ControlObjOperate;
 };
 
 }; // namespace: dlnk

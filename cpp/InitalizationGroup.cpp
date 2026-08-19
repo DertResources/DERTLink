@@ -15,20 +15,31 @@
 namespace dlnk
 {
 
-void InitalizationGroup::Print(uint8_t tabs)
+std::string InitalizationGroup::Print(uint8_t tabs)
 {
     SCOPE_TRACE("InitalizationGroup::Print");
+    std::string out = "";
     std::string tabString = std::string(tabs * 2, ' ');
-    std::cout << tabString << "\033[96m" << "Initalization Group: \"" << GroupName << "\"" << std::endl;
-    std::cout << tabString << "{" << "\033[m" << std::endl;
+    out += tabString + "\033[96mInitalization Group: \"" + GroupName + "\"\n";
+    out += tabString + "{" + "\033[m" + '\n';
     for (DataEntryVariant& de : GroupDataEntries)
     {
         std::visit(
-        [=](auto& a) {
-            a.Print(tabs + 1);
+        [&](auto& a) {
+            out += a.Print(tabs + 1);
         }, de);
     }
-    std::cout << tabString << "\033[96m" << "}" << "\033[m" << std::endl;
+    out += tabString + "\033[96m}\033[m\n";
+
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG(out);
+        return "";
+    }
+    else
+    {
+        return out;
+    }
 }
 
 void InitalizationGroup::SetDevicePtr(Device& ref)
@@ -43,7 +54,7 @@ Device& InitalizationGroup::ExitInitalizationGroup()
     return *devicePtr;
 }
 
-void InitalizationGroup::RunInitCmd(std::shared_ptr<std::any>& obj,
+void InitalizationGroup::RunInitCmd(std::any& obj,
                                     ShortDev& sd,
                                     DynamicBuffer& dbf,
                                     DynamicBuffer& dbd,

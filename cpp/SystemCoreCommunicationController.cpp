@@ -16,7 +16,7 @@ namespace dlnk
     }
 
 
-    void SCCC::StageOneHandshake_FromBuffer()
+    bool SCCC::StageOneHandshake_FromBuffer()
     {
         SCOPE_TRACE("SystemCoreCommunicationController::StageOneHandshake_FromBuffer");
         BV = CM::ReciveMessage();
@@ -27,24 +27,38 @@ namespace dlnk
         // Message Header
         messageType = CM::ReadMessageType(cur);
         if(messageType != MT::HANDSHAKE_STEP_ONE)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Type");
+            return false;
+        }
         
         // Message Body
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::DEVICE_DICTONARY)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            return false;
+        }
         DeviceDictonary dd;
         dd.ReadFromBuffer(cur);
 
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::END_OF_MESSAGE)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            return false;
+        }
 
         if(!DeviceDictonary::CompareDictonaries(dd, DD))
+        {
             DISPLAY_ERROR("ERROR: Device Dictonaries dont match");
+            return false;
+        }
+        
+        return true;
     }
 
-    void SCCC::StageTwoHandshake_FromBuffer()
+    bool SCCC::StageTwoHandshake_FromBuffer()
     {
         SCOPE_TRACE("SystemCoreCommunicationController::StageTwoHandshake_FromBuffer");
         BV = CM::ReciveMessage();
@@ -55,23 +69,35 @@ namespace dlnk
         // Message Header
         messageType = CM::ReadMessageType(cur);
         if(messageType != MT::HANDSHAKE_STEP_TWO)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Type");
+            return false;
+        }
 
         // Message Body
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::MANIFEST)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            return false;
+        }
 
         MB.ReadManifestFromBuffer(cur);
         
          messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::END_OF_MESSAGE)
+        {
             DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            return false;
+        }
+        
+        return true;
     }
 
-    void SCCC::CreateAllObjects()
+    bool SCCC::CreateAllObjects()
     {
         SCOPE_TRACE("SystemCoreCommunicationController::CreateAllObjects");
         MB.InitalizeControlObjects();
+        return true;
     }
 };

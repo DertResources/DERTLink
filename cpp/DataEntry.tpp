@@ -4,7 +4,6 @@
 #include <cstdint>
 #include "../include/DataEntry.h"
 #include "../include/SerializeHelper.h"
-#include "../include/PortabilityHelper.h"
 #include "../include/DebugTracer.h"
 namespace dlnk
 {
@@ -40,30 +39,40 @@ void DataEntry<T>::ReadFromBuffer(const Byte*& cur)
 }
 
 template<typename T>
-void DataEntry<T>::Print(uint8_t tabs) const
+std::string DataEntry<T>::Print(uint8_t tabs) const
 {
     SCOPE_TRACE("DataEntry<T>::Print");
+    std::string out = "";
     std::string tabString = std::string(2*tabs, ' ');
     // Name
-    print_t(tabString + "\033[92mData Entry: \"" + name + "\""  + "\033[32m\n");
+    out += tabString + "\033[92mData Entry: \"" + name + "\"\033[32m\n";
     // Data Type
-    print_t(tabString + "  data type: ");
+    out += tabString + "  data type: ";
     PrintDataType(dataType);
-    print_t("\n");
+    out += '\n';
     //Data Direction
-    print_t(tabString + "  data direction: ");
+    out += tabString + "  data direction: ";
     switch (direction)
     {
     case DataDirection::DESIREDSTATE:
-        print_t("desired state"); break;
+        out += "desired state"; break;
     case DataDirection::FEEDBACK:
-        print_t("sensor feedback"); break;
+        out += "sensor feedback"; break;
     case DataDirection::INIT:
-        print_t("hardware initalization"); break;
+        out += "hardware initalization"; break;
     default:
-        print_t("unknown"); break;
+        out += "unknown"; break;
     }
-    print_t("\n");
+    out += '\n';
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG(out);
+        return "";
+    }
+    else
+    {
+        return out;
+    }
 }
 
 template<typename T>

@@ -13,7 +13,7 @@ namespace dlnk
         DeviceDictonary::SortShortDevVector(SDV);
     }
 
-    void CPCC::StageOneHandshake_ToBuffer()
+    bool CPCC::StageOneHandshake_ToBuffer()
     {
         SCOPE_TRACE("CoprocessorCommunicationController::StageOneHandshake_ToBuffer");
         ClearBuffer();
@@ -28,9 +28,10 @@ namespace dlnk
         CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
 
         CM::SendMessage(BV);
+        return true;
     }
 
-    void CPCC::StageTwoHandshake_ToBuffer()
+    bool CPCC::StageTwoHandshake_ToBuffer()
     {
         SCOPE_TRACE("CoprocessorCommunicationController::StageTwoHandshake_ToBuffer");
         ClearBuffer();
@@ -45,5 +46,6 @@ namespace dlnk
         CM::WriteMessageBodySignature(BV, MBS::END_OF_MESSAGE);
 
         CM::SendMessage(BV);
+        return true;
     }
 };

@@ -7,7 +7,6 @@
 #include "../include/SerializeHelper.h"
 #include "../include/InitalizationGroup.h"
 #include "../include/DataEntry.h"
-#include "../include/PortabilityHelper.h"
 #include <deque>
 #include "../include/DebugTracer.h"
 namespace dlnk
@@ -60,16 +59,26 @@ void Device::ReadFromBuffer(const Byte*& cur)
     }
 }
 
-void Device::Print(uint8_t tabs)
+std::string Device::Print(uint8_t tabs)
 {
     SCOPE_TRACE("Device::Print");
+    std::string out = "";
     std::string tabString = std::string(tabs*2, ' ');
-    print_t( tabString + "\033[91mDevice Name: \"" + deviceName + "\"\n");
-    print_t( tabString + "[\033[m\n");
+    out += tabString + "\033[91mDevice Name: \"" + deviceName + "\"\n";
+    out += tabString + "[\033[m\n";
     for (auto entry : initalizationGroupVector) {
-        entry.Print(tabs+1);
+        out += entry.Print(tabs+1);
     }
-    print_t(tabString + "\033[91m]\033[m\n");
+    out += tabString + "\033[91m]\033[m\n";
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG(out);
+        return "";
+    }
+    else
+    {
+        return out;
+    }
 }
 
 DeviceDictonary& Device::ExitDevice()

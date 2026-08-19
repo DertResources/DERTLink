@@ -7,8 +7,6 @@
 
 #include "../include/CommunicationHandler.h"
 
-#include <wpi/print.h>
-
 namespace dlnk
 {
 class SystemCoreCommunicationController;
@@ -33,16 +31,17 @@ public:
     , DB_Feedback{}
     , DB_DesiredState{}
     {}
+    
     ManifestBuilder& GetManifestBuilder() {return MB;}
     DeviceDictonary& GetDeviceDictonary() {return DD;}
     void StartCommunication();
     
-    void StageOneHandshake_FromBuffer();
+    bool StageOneHandshake_FromBuffer();
 
-    void StageTwoHandshake_FromBuffer();
+    bool StageTwoHandshake_FromBuffer();
 
-    void CreateAllObjects();
-
+    bool CreateAllObjects();
+    
     inline void ClearBuffer() {BV.clear();}
 
     static std::shared_ptr<SCCC> Instance;

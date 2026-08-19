@@ -88,19 +88,29 @@ void DeviceBuilder::ReadBuffer(const Byte*& cur)
     }
 }
 
-void DeviceBuilder::Print(int tabs)
+std::string DeviceBuilder::Print(int tabs)
 {
     SCOPE_TRACE("DeviceBuilder::Print");
+    std::string out;
     std::string tabString = std::string(tabs * 2, ' ');
-    std::cout << tabString << "Device Name: " << deviceName << std::endl;
+    out += tabString + "Device Name: " + deviceName + '\n';
     for (EntryManifest& em : entryManifests) {
-        std::cout << tabString << tabString << "Entry Name: " << em.entryName << std::endl
-                  << tabString << tabString << "Type: ";
+        out += tabString + tabString + "Entry Name: " + em.entryName + '\n'
+                  + tabString + tabString + "Type: ";
         if (em.entryType.has_value())
-            PrintDataType(em.entryType.value());
+            out += PrintDataType(em.entryType.value());
         else
-            std::cout << "[No Value]";
-        std::cout << std::endl;
+            out += "[No Value]";
+        out += '\n';
+    }
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG(out);
+        return "";
+    }
+    else
+    {
+        return out;
     }
 }
 

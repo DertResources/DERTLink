@@ -232,7 +232,7 @@ void ManifestBuilder::InitalizeControlObjects()
                 // and run the int command
                 //std::cout << ig.GetName() << std::endl;
                 std::string s = sd.DeviceName;
-                std::shared_ptr<std::any>& any_obj = OM.NewCreateInfo(s);
+                std::any any_obj = OM.NewCreateInfo(s);
                 ig.RunInitCmd(any_obj, sdr, dbFeedback, dbDesiredState, db);
             }
         });
@@ -314,13 +314,23 @@ void ManifestBuilder::WriteManifestToBuffer(ByteVector& BV)
     }
 }
 
-void ManifestBuilder::Print(int tabs)
+std::string ManifestBuilder::Print(int tabs)
 {
     SCOPE_TRACE("ManifestBuilder::Print");
-    std::cout << "Manifest:" << std::endl;
+    std::string out = "";
+    out += "Manifest:\n";
     for(DeviceBuilder& db : deviceManifests)
     {
-        db.Print(tabs + 1);
+        out += db.Print(tabs + 1);
+    }
+    if(tabs == 0)
+    {
+        DISPLAY_DEBUG("");
+        return "";
+    }
+    else
+    {
+        return out;
     }
 }
 

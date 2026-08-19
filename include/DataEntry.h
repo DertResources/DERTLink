@@ -4,7 +4,6 @@
 #include <variant>
 #include <type_traits>
 #include "../include/SerializeHelper.h"
-#include "../include/PortabilityHelper.h"
 
 namespace dlnk
 {
@@ -29,36 +28,35 @@ enum class DataType : Byte {
     DOUBLE , // 10
     STRING , // 11
 };  
-static void PrintDataType(DataType dt)
+static std::string PrintDataType(DataType dt)
 {
-    switch (dt)
-    {
+    switch (dt) {
     case DataType::BOOL:
-        print_t("boolean"); break;
+        return "boolean";
     case DataType::UINT8:
-        print_t("uint8_t"); break;
+        return "uint8_t";
     case DataType::UINT16:
-        print_t("uint16_t"); break;
+        return "uint16_t";
     case DataType::UINT32:
-        print_t("uint32_t"); break;
+        return "uint32_t";
     case DataType::UINT64:
-        print_t("uint64_t"); break;
+        return "uint64_t";
     case DataType::INT8:
-        print_t("int8_t"); break;
+        return "int8_t";
     case DataType::INT16:
-        print_t("int16_t"); break;
+        return "int16_t";
     case DataType::INT32:
-        print_t("int32_t"); break;
+        return "int32_t";
     case DataType::INT64:
-        print_t("int64_t"); break;
+        return "int64_t";
     case DataType::FLOAT:
-        print_t("float"); break;
+        return "float";
     case DataType::DOUBLE:
-        print_t("double"); break;
+        return "double";
     case DataType::STRING:
-        print_t("string"); break;
+        return "string";
     default:
-        print_t("unknown"); break;
+        return "unknown data type";
     }
 }
 
@@ -86,7 +84,7 @@ public:
 
     void ReadFromBuffer(const Byte*& cur);
 
-    void Print(uint8_t tabs = 0) const;
+    std::string Print(uint8_t tabs = 0) const;
 
     template<typename G>
     DataEntry& SetDataType();

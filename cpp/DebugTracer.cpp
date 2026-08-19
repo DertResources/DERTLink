@@ -69,6 +69,12 @@ bool DebugTracer::PrintWarning(std::string warningMessage)
     return true;
 }
 
+bool DebugTracer::PrintDebug(std::string debugMessage)
+{
+    std::cout << debugMessage << std::endl;
+    return true;
+}
+
 void DebugTracer::AddScope(TracerScopeInfo* ptr)
 {
     scopeStack.push_back(ptr);

@@ -35,11 +35,11 @@ public:
     DeviceDictonary& GetDeviceDictonary() {return DD;}
     void StartCommunication();
 
-    void StageOneHandshake_ToBuffer();
+    bool StageOneHandshake_ToBuffer();
 
-    void StageTwoHandshake_ToBuffer();
+    bool StageTwoHandshake_ToBuffer();
 
-    void ClearBuffer() {BV.clear();}
+    void ClearBuffer() { BV.clear(); }
 
     static std::shared_ptr<CPCC> Instance;
 private:

@@ -38,7 +38,7 @@ public:
     template <typename... Args>
     InitalizationGroup& AddIntializationGroup(Args... _args);
 
-    void Print(uint8_t tabs = 0);
+    std::string Print(uint8_t tabs = 0);
     
     DeviceDictonary& ExitDevice();
     

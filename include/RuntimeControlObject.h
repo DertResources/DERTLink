@@ -161,7 +161,7 @@ void input(Func&& func,
 
 
 template <typename Ret, typename Class, typename Arg>
-void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
+void RunFunc(std::any& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
 {
     SCOPE_TRACE("dlnk::RunFunc (one arg)");
     std::visit([&](auto& a){
@@ -175,8 +175,8 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
         
         if constexpr (std::is_same_v<U, Arg>)
         {
-            Ret result = std::bind(funcPtr, *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), a)();
-            obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
+            Ret result = std::bind(funcPtr, *(std::any_cast<std::shared_ptr<Class>>(obj).get()), a)();
+            obj = std::make_shared<Ret>(std::move(result));
             return;
         }
 
@@ -194,10 +194,11 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
             // not pointer
             if constexpr (std::is_convertible_v<U, Arg>)
             {
+                DISPLAY_WARNING("WARNING: Narrowing conversion not caught, implement checks later");
                 Ret result = std::bind(funcPtr, 
-                                        *(std::any_cast<std::shared_ptr<Class>>(*obj.get()).get()), 
+                                        *(std::any_cast<std::shared_ptr<Class>>(obj).get()), 
                                         static_cast<Arg>(a))();
-                obj = std::make_shared<std::any>(std::make_shared<Ret>(std::move(result)));
+                obj = std::make_shared<Ret>(std::move(result));
             } else {
                 DISPLAY_ERROR("Types do not match, Datatypes are not convertable");
             }
@@ -206,14 +207,12 @@ void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)
 }
 
 template <typename Ret, typename Class>
-void RunFunc(std::shared_ptr<std::any>& obj, AllTypes arg, Ret (Class::*funcPtr)())
+void RunFunc(std::any& obj, AllTypes arg, Ret (Class::*funcPtr)())
 {
     SCOPE_TRACE("dlnk::RunFunc (no arg)");
     try {
-        std::cout << "5" << std::endl;
         Ret result = std::bind(funcPtr,
-            *(std::any_cast<std::shared_ptr<Class>&>(*obj.get()).get()))();
-        std::cout << "6" << std::endl;
+            *(std::any_cast<std::shared_ptr<Class>&>(obj).get()))();
         obj = std::make_shared<std::any>(std::move(result));
     }
     catch (std::exception& e)

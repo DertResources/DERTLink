@@ -20,7 +20,7 @@ class Device;
 class ManifestBuilder;
 struct ShortDev;
 
-using InitFuncType = std::function<void(std::shared_ptr<std::any>& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
+using InitFuncType = std::function<void(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
 
 class InitalizationGroup
 {
@@ -36,13 +36,13 @@ public:
 
     std::deque<DataEntryVariant>& getDataEntryVector();
     
-    void Print(uint8_t tabs = 0);
+    std::string Print(uint8_t tabs = 0);
 
     void SetDevicePtr(Device& ref);
 
     Device& ExitInitalizationGroup();
 
-    void RunInitCmd(std::shared_ptr<std::any>& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
+    void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
 
     std::string GetName();
 
