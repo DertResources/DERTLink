@@ -7,6 +7,7 @@
 #include "SerializeHelper.h"
 #include "../include/CommunicationHandler.h"
 #include <memory>
+#include <optional>
 
 namespace dlnk
 {
@@ -41,7 +42,11 @@ public:
 
     void ClearBuffer() { BV.clear(); }
 
-    static std::shared_ptr<CPCC> Instance;
+    static std::optional<CPCC> Instance;
+
+    static void StartProcess();
+    static void ShutDownProcess();
+    static void RestartProcess();
 private:
     DeviceDictonary DD;
     ShortDevVector SDV;

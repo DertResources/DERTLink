@@ -1,9 +1,26 @@
 #include "../include/CoprocessorCommunicationController.h"
 #include "../include/DebugTracer.h"
 #include "DERTLink/include/DebugTracer.h"
+#include <utility>
 namespace dlnk 
 {
-    std::shared_ptr<CPCC>CPCC::Instance = std::make_shared<CPCC>();
+    std::optional<CPCC> CPCC::Instance{std::nullopt};
+
+    void CPCC::StartProcess()
+    {
+        CPCC::Instance.emplace();
+    }
+
+    void CPCC::ShutDownProcess()
+    {
+        CPCC::Instance.reset();
+    }
+
+    void CPCC::RestartProcess()
+    {
+        ShutDownProcess();
+        StartProcess();
+    }
 
     void CPCC::StartCommunication()
     {

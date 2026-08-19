@@ -1,9 +1,26 @@
 #include "../include/SystemCoreCommunicationController.h"
 #include "DERTLink/include/DebugTracer.h"
+#include <optional>
 
 namespace dlnk 
 {
-    std::shared_ptr<SCCC> SCCC::Instance = std::make_shared<SCCC>();
+    std::optional<SCCC> SCCC::Instance{std::nullopt};
+
+    void SCCC::StartProcess()
+    {
+        SCCC::Instance.emplace();
+    }
+
+    void SCCC::ShutDownProcess()
+    {
+        SCCC::Instance.reset();
+    }
+
+    void SCCC::RestartProcess()
+    {
+        ShutDownProcess();
+        StartProcess();
+    }
 
     void SCCC::StartCommunication()
     {

@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 #include "../include/ManifestBuilder.h"
+#include "DERTLink/include/RuntimeControlObject.h"
 
 
 

@@ -1,8 +1,12 @@
 #include "../include/DebugTracer.h"
+#include <wpi/Logger.h>
+
 namespace dlnk
 {
     
 DebugTracer DebugTracer::Instance;
+
+wpi::Logger DebugTracer::logger;
 
 std::string TracerScopeInfo::rootDirName = "main";
 
@@ -34,6 +38,16 @@ std::string TracerScopeInfo::ToString()
     return scopeName + ": line=" + std::to_string(lineNumber) + " File=" + filename;
 }
 
+std::string TracerScopeInfo::GetFilename()
+{
+    return filename;
+}
+
+uint32_t TracerScopeInfo::GetLine()
+{
+    return lineNumber;
+}
+
 DebugTracer::DebugTracer()
 {
     scopeStack.reserve(reservedStackDepth);
@@ -51,6 +65,7 @@ bool DebugTracer::PrintError(std::string errorMessage)
     }
 
     std::cout << message << "\33[91m" << errorMessage << "\33[m" << std::endl;
+    logger.Log(wpi::LogLevel::WPI_LOG_ERROR, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), message);
     return true;
 }
 
@@ -64,14 +79,15 @@ bool DebugTracer::PrintWarning(std::string warningMessage)
         else
             return false;
     }
-
-    std::cout << message << "\33[93m" << warningMessage << "\33[m" << std::endl;
+    
+    logger.Log(wpi::LogLevel::WPI_LOG_WARNING, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), message);
     return true;
 }
 
 bool DebugTracer::PrintDebug(std::string debugMessage)
 {
     std::cout << debugMessage << std::endl;
+    logger.Log(wpi::LogLevel::WPI_LOG_WARNING, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), debugMessage);
     return true;
 }
 

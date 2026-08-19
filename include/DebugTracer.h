@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "../include/DertlibConfig.h"
+#include <wpi/Logger.h>
 
 namespace dlnk
 {
@@ -14,6 +16,10 @@ public:
     TracerScopeInfo(std::string _scopeName, uint32_t _lineNumber, std::string _filename);
 
     std::string ToString();
+
+    std::string GetFilename();
+
+    uint32_t GetLine();
 private:
     std::string scopeName;
     std::string filename;
@@ -37,6 +43,7 @@ public:
     void RemoveLastScope();
     
     static DebugTracer Instance;
+    static wpi::Logger logger;
 private:
     constexpr static uint8_t reservedStackDepth = 10;
     std::vector<TracerScopeInfo*> scopeStack;
