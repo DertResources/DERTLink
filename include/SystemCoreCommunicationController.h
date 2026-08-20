@@ -6,6 +6,7 @@
 #include "ObjectManager.h"
 
 #include "../include/CommunicationHandler.h"
+#include "frc/Errors.h"
 
 namespace dlnk
 {
@@ -31,6 +32,7 @@ public:
     , DB_Feedback{}
     , DB_DesiredState{}
     {}
+    
     
     ManifestBuilder& GetManifestBuilder() {return MB;}
     DeviceDictonary& GetDeviceDictonary() {return DD;}

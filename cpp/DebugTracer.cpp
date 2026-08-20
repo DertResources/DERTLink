@@ -1,4 +1,5 @@
 #include "../include/DebugTracer.h"
+#include "frc/Errors.h"
 #include <wpi/Logger.h>
 
 namespace dlnk
@@ -63,9 +64,12 @@ bool DebugTracer::PrintError(std::string errorMessage)
         else
             return false;
     }
-
-    std::cout << message << "\33[91m" << errorMessage << "\33[m" << std::endl;
-    logger.Log(wpi::LogLevel::WPI_LOG_ERROR, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), message);
+#ifdef _IS_SIMULATION
+    std::cout << message + errorMessage << std::endl;
+#else
+    FRC_ReportError(frc::warn::Warning, "{}", message+errorMessage);
+#endif
+    // frc::ReportError(frc::err::Error, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), "", "{}", message+errorMessage);
     return true;
 }
 
@@ -79,15 +83,21 @@ bool DebugTracer::PrintWarning(std::string warningMessage)
         else
             return false;
     }
-    
-    logger.Log(wpi::LogLevel::WPI_LOG_WARNING, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), message);
+#ifdef _IS_SIMULATION
+    std::cout << message + warningMessage << std::endl;
+#else
+    FRC_ReportError(frc::warn::Warning, "{}", message);
+#endif
     return true;
 }
 
 bool DebugTracer::PrintDebug(std::string debugMessage)
 {
+#ifdef _IS_SIMULATION
     std::cout << debugMessage << std::endl;
-    logger.Log(wpi::LogLevel::WPI_LOG_WARNING, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), debugMessage);
+#else
+    fmt::print("{}", debugMessage);
+#endif
     return true;
 }
 

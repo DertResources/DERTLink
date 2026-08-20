@@ -107,7 +107,7 @@ namespace dlnk
             DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
             return false;
         }
-        
+                
         return true;
     }
 

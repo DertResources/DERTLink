@@ -7,7 +7,7 @@
     #endif
     #include <frc/RobotBase.h>
     //check if is frc simulation
-    #ifdef __FRC_ROBORIO__
+    #ifndef __FRC_ROBORIO__
         #ifndef _IS_SIMULATION
             #define _IS_SIMULATION
         #endif
