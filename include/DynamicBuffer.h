@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <mutex>
 
 #include "../include/SerializeHelper.h"
 #include "../include/DataEntry.h"
@@ -13,23 +14,26 @@ namespace dlnk
 template<uint8_t bufferCount>
 class DynamicBuffer
 {
-    static_assert(bufferCount >= 0);
 private:
+    struct GuardedBuffer
+    {
+        std::mutex mutex;
+        // buffer is a deque so that pointers remain valid on resize
+        std::deque<std::any> buffer;
+        std::vector<std::string> stringBuffer;
+    };
     struct Mapping
     {
         size_t originalIndex;
         size_t targetIndex;
         DataType typeOfData;
     };
-    // buffer is a deque so that pointers remain valid on resize
+    std::mutex bufferDescMutex;
     std::vector<Mapping> bufferDescription;
     size_t stackSize = 0;
-
-    std::array<std::vector<std::string>, bufferCount> string_alloc_buffers;
-    std::array<std::deque<std::any>, bufferCount> buffers;
+    std::array<GuardedBuffer, bufferCount> buffers;
     
 public:
-    std::deque<std::any>& GetBuffer(uint8_t bufferIdx);
     // Allocators
     void AllocateDouble(double*& ptr);
     void AllocateFloat(float*& ptr);
@@ -45,8 +49,8 @@ public:
     void AllocateString(uint8_t& ptr);
     
     // Special String Handling
-    inline std::string ReadString(uint8_t heapIdPtr) { return string_alloc_buffers[0][heapIdPtr]; }
-    inline void WriteString(uint8_t heapIdPtr, std::string str) { string_alloc_buffers[0][heapIdPtr] = str; }
+    // inline std::string ReadString(uint8_t heapIdPtr) { return buffers[0].[heapIdPtr]; }
+    // inline void WriteString(uint8_t heapIdPtr, std::string str) { string_alloc_buffers[0][heapIdPtr] = str; }
 
     void SwapBuffers(uint8_t a_BufferIdx, uint8_t b_BufferIdx);
 

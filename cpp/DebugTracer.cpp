@@ -1,5 +1,6 @@
 #include "../include/DebugTracer.h"
 #include "frc/Errors.h"
+#include <stdexcept>
 #include <wpi/Logger.h>
 
 namespace dlnk
@@ -54,7 +55,7 @@ DebugTracer::DebugTracer()
     scopeStack.reserve(reservedStackDepth);
 }
 
-bool DebugTracer::PrintError(std::string errorMessage)
+void DebugTracer::ThrowError(std::string errorMessage)
 {
     std::string message;
     for(TracerScopeInfo* curScope : scopeStack)
@@ -62,7 +63,7 @@ bool DebugTracer::PrintError(std::string errorMessage)
         if(curScope)
             message += "> " + curScope->ToString() + '\n';
         else
-            return false;
+            throw std::runtime_error("invalid ptr");
     }
 #ifdef _IS_SIMULATION
     std::cout << message + errorMessage << std::endl;
@@ -70,7 +71,8 @@ bool DebugTracer::PrintError(std::string errorMessage)
     FRC_ReportError(frc::warn::Warning, "{}", message+errorMessage);
 #endif
     // frc::ReportError(frc::err::Error, scopeStack.back()->GetFilename().c_str(), scopeStack.back()->GetLine(), "", "{}", message+errorMessage);
-    return true;
+
+    throw std::runtime_error(errorMessage);
 }
 
 bool DebugTracer::PrintWarning(std::string warningMessage)

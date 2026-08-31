@@ -1,4 +1,7 @@
 #pragma once
+
+#define DEFAULT_PORT "5840"
+
 // check if has rio include
 #if __has_include(<frc/RobotBase.h>)
     // Make "_WPILIB_CODE"

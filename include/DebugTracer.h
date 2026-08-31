@@ -32,7 +32,7 @@ class DebugTracer
 public:
     DebugTracer();
 
-    bool PrintError(std::string errorMessage);
+    void ThrowError(std::string errorMessage);
 
     bool PrintWarning(std::string warningMessage);
 
@@ -66,9 +66,8 @@ public:
 std::unique_ptr<TracerScopeInfo> _localTraceGuard = std::make_unique<TracerScopeInfo>(SCOPE_NAME, __LINE__, __FILE__); \
 [[maybe_unused]] TracerScope_Guard _traceGuard(_localTraceGuard)
 
-#define DISPLAY_ERROR(ERROR_MSG) \
-dlnk::DebugTracer::Instance.PrintError(ERROR_MSG)
-
+#define THROW_ERROR(ERROR_MSG) \
+dlnk::DebugTracer::Instance.ThrowError(ERROR_MSG)
 
 #define DISPLAY_WARNING(WARNING_MSG) \
 dlnk::DebugTracer::Instance.PrintWarning(WARNING_MSG)
