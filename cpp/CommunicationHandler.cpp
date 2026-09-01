@@ -35,7 +35,7 @@ MESSAGE_BODY_SIGNATURE CommunicationManager::GetMessageBodySignatureFromId(uint8
                                id);
     if (message_body_signature_map.end() == it)
     {
-        DISPLAY_ERROR("ERORR: enum id not in ennumeration, defaulting to value of zero");
+        THROW_ERROR("ERORR: enum id not in ennumeration, defaulting to value of zero");
         return static_cast<MESSAGE_BODY_SIGNATURE>(0);
     }
     return static_cast<MESSAGE_BODY_SIGNATURE>(id);
@@ -49,7 +49,7 @@ MESSAGETYPE CommunicationManager::GetMessageTypeFromId(uint8_t id)
                                id);
     if (message_type_map.end() == it)
     {
-        DISPLAY_ERROR("ERORR: enum id not in ennumeration, defaulting to value of zero");
+        THROW_ERROR("ERORR: enum id not in ennumeration, defaulting to value of zero");
         return static_cast<MESSAGETYPE>(0);   
     }
     return static_cast<MESSAGETYPE>(id);

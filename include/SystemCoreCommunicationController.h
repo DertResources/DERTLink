@@ -27,10 +27,8 @@ public:
     , MB{OM,
         DD,
         SDV,
-        DB_DesiredState,
-        DB_Feedback}
-    , DB_Feedback{}
-    , DB_DesiredState{}
+        TCP}
+    , TCP{}
     {}
     
     
@@ -56,8 +54,7 @@ private:
     ShortDevVector SDV;
     ObjectManager   OM;
     ManifestBuilder MB;
-    DynamicBuffer   DB_Feedback;
-    DynamicBuffer   DB_DesiredState;
+    TCPHarness      TCP;
     ByteVector      BV;
 };
 

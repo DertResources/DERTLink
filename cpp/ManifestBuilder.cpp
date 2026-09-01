@@ -39,7 +39,7 @@ bool ManifestBuilder::ValidateManifest()
         ShortDev DeviceMatch;
         if (!DeviceDictonary::FindShortDevice(shortDeviceDictonary, DeviceMatch, db.GetDeviceName()))
         {
-            DISPLAY_ERROR("Manifest Error: Device Not Found");
+            THROW_ERROR("Manifest Error: Device Not Found");
             return false;
         }
         // check every device entry
@@ -49,11 +49,11 @@ bool ManifestBuilder::ValidateManifest()
             DataEntryPtr dataEntryMatch;
             if(!DeviceDictonary::FindShortDataEntry(DeviceMatch, dataEntryMatch, em.entryName))
             {
-                DISPLAY_ERROR("Manifest Error: Entry Not Found");
+                THROW_ERROR("Manifest Error: Entry Not Found");
                 return false;
             }
             if (!CheckDataDirection(dataEntryMatch)) {
-                DISPLAY_ERROR("Data Direction Wrong");
+                THROW_ERROR("Data Direction Wrong");
                 return false;
             }
             return DataDirectionSwitch(em, dataEntryMatch, [&](){ //Init
@@ -173,7 +173,7 @@ void ManifestBuilder::DataTypeError(DataEntryPtr& dep)
 {
     SCOPE_TRACE("ManifestBuilder::DataTypeError");
     std::visit([&](auto& de) {
-        DISPLAY_ERROR("Data type not matched");
+        THROW_ERROR("Data type not matched");
         PrintDataType(de.GetDataType());
         std::cout << std::endl;
     }, *dep);
@@ -233,7 +233,7 @@ void ManifestBuilder::InitalizeControlObjects()
                 //std::cout << ig.GetName() << std::endl;
                 std::string s = sd.DeviceName;
                 std::any& any_obj = OM.NewCreateInfo(s);
-                ig.RunInitCmd(any_obj, sdr, dbFeedback, dbDesiredState, db);
+                ig.RunInitCmd(any_obj, sdr, tcpHarness, db);
             }
         });
     });
@@ -300,7 +300,7 @@ void ManifestBuilder::WriteManifestToBuffer(ByteVector& BV)
     bool result = ValidateManifest();
     if(!result)
     {
-        DISPLAY_ERROR("Manifest not valid");
+        THROW_ERROR("Manifest not valid");
         return;
     }
     // std::cout << "Is Manifest Valid: " << std::boolalpha

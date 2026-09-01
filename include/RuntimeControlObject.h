@@ -5,7 +5,8 @@
 #include "../include/DeviceBuilder.h"
 #include "../include/AutoGenFile.h"
 #include "../include/ManifestBuilder.h"
-#include "DERTLink/include/DebugTracer.h"
+#include "../include/DebugTracer.h"
+#include "../include/TCPHarness.h"
 #include "fmt/base.h"
 
 #include <variant>
@@ -29,72 +30,72 @@ namespace dlnk
 {
 
 template<typename Func>
-void allocate(Func& func, DynamicBuffer& db, DataType dt)
+void allocate(Func& func, TCPHarness& tcpHarness, TCPHarness::AllocationDirection ad,  DataType dt)
 {
     SCOPE_TRACE("dlnk::allocate");
     switch (dt) {
     case DataType::BOOL:
         bool* pBool;
-        db.AllocateBool(pBool);
+        tcpHarness.AllocateBool(pBool, ad);
         func(pBool);
         break;
     case DataType::FLOAT:
         float* pFloat;
-        db.AllocateFloat(pFloat);
+        tcpHarness.AllocateFloat(pFloat, ad);
         func(pFloat);
         break;
     case DataType::DOUBLE:
         double* pDouble;
-        db.AllocateDouble(pDouble);
+        tcpHarness.AllocateDouble(pDouble, ad);
         func(pDouble);
         break;
     case DataType::STRING:
         uint8_t vString;
-        db.AllocateString(vString);
+        tcpHarness.AllocateString(vString, ad);
         func(vString);
         break;
     case DataType::INT8:
         int8_t* pInt8;
-        db.AllocateInt8(pInt8);
+        tcpHarness.AllocateInt8(pInt8, ad);
         func(pInt8);
         break;
     case DataType::INT16:
         int16_t* pInt16;
-        db.AllocateInt16(pInt16);
+        tcpHarness.AllocateInt16(pInt16, ad);
         func(pInt16);
         break;
     case DataType::INT32:
         int32_t* pInt32;
-        db.AllocateInt32(pInt32);
+        tcpHarness.AllocateInt32(pInt32, ad);
         func(pInt32);
         break;
     case DataType::INT64:
         int64_t* pInt64;
-        db.AllocateInt64(pInt64);
+        tcpHarness.AllocateInt64(pInt64, ad);
         func(pInt64);
         break;
     case DataType::UINT8:
         uint8_t* pUInt8;
-        db.AllocateUInt8(pUInt8);
+        tcpHarness.AllocateUInt8(pUInt8, ad);
         func(pUInt8);
         break;
     case DataType::UINT16:
         uint16_t* pUInt16;
-        db.AllocateUInt16(pUInt16);
+        tcpHarness.AllocateUInt16(pUInt16, ad);
         func(pUInt16);
         break;
     case DataType::UINT32:
         uint32_t* pUInt32;
-        db.AllocateUInt32(pUInt32);
+        tcpHarness.AllocateUInt32(pUInt32, ad);
         func(pUInt32);
         break;
     case DataType::UINT64:
         uint64_t* pUInt64;
-        db.AllocateUInt64(pUInt64);
+        tcpHarness.AllocateUInt64(pUInt64, ad);
         func(pUInt64);
         break;
     default:
-        DISPLAY_ERROR("Error: Data Type not found");
+        THROW_ERROR("Error: Data Type not found");
     }
 }
 
@@ -103,8 +104,7 @@ template <typename Func, typename T>
 void input(Func&& func,
         T _key,
         ShortDev& sd,
-        DynamicBuffer& dbFeedback,
-        DynamicBuffer& dbDesiredState,
+        TCPHarness& tcpHarness,
         DeviceBuilder& db)
 {
     SCOPE_TRACE("dlnk::input");
@@ -140,21 +140,21 @@ void input(Func&& func,
             });
             // Check if search didnt find result
             if(It == a.end())
-                DISPLAY_ERROR("Error: Entry manifest name not found in initalization pass");
+                THROW_ERROR("Error: Entry manifest name not found in initalization pass");
             // Check if found entry has value, which it should at this point
             if(!(It->entryData.has_value()))
-                DISPLAY_ERROR("Error: Entry manifest does not have value at initalization pass when type is INIT");
+                THROW_ERROR("Error: Entry manifest does not have value at initalization pass when type is INIT");
             std::visit([&func](auto& data){
                 func(data);
             }, It->entryData.value());
         }
         else if (dd == DataDirection::FEEDBACK)
         {
-            allocate(func, dbFeedback, dt);
+            allocate(func, tcpHarness, TCPHarness::AllocationDirection::OutBuffer, dt);
         }
         else if (dd == DataDirection::DESIREDSTATE)
         {
-            allocate(func, dbDesiredState, dt);
+            allocate(func, tcpHarness, TCPHarness::AllocationDirection::InBuffer, dt);
         }
     }
 }
@@ -169,7 +169,7 @@ void RunFunc(std::any& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
         if constexpr (( std::is_pointer_v<Arg> && !std::is_pointer_v<U>) ||
                       (!std::is_pointer_v<Arg> &&  std::is_pointer_v<U>))
         {
-            DISPLAY_ERROR("Buffer type can not be assigned to Init type");
+            THROW_ERROR("Buffer type can not be assigned to Init type");
             return;
         }
         
@@ -185,10 +185,10 @@ void RunFunc(std::any& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
             // pointer
             if constexpr (std::is_convertible_v<std::remove_pointer_t<U>, std::remove_pointer_t<Arg>>)
             {
-                DISPLAY_ERROR("To be implemented later");
+                THROW_ERROR("To be implemented later");
                 // TO BE IMPLEMENTED LATER
             } else {
-                DISPLAY_ERROR("Types do not match, Pointer types are not convertable");
+                THROW_ERROR("Types do not match, Pointer types are not convertable");
             }
         } else {
             // not pointer
@@ -200,7 +200,7 @@ void RunFunc(std::any& obj, AllTypes arg, Ret (Class::*funcPtr)(Arg))
                                         static_cast<Arg>(a))();
                 obj = std::make_shared<Ret>(std::move(result));
             } else {
-                DISPLAY_ERROR("Types do not match, Datatypes are not convertable");
+                THROW_ERROR("Types do not match, Datatypes are not convertable");
             }
         }
     }, arg);

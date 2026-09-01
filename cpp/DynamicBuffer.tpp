@@ -347,7 +347,7 @@ void DynamicBuffer<bufferCount>::ExportBytes(ByteVector& expBuff, uint8_t source
         case DataType::BOOL:
             serial::write_bool_be(expBuff, std::any_cast<bool>(sourceBuffer[map.originalIndex])); break;
         default:
-            DISPLAY_ERROR("Error: Dynamic Buffer Export Bytes unknown type");
+            THROW_ERROR("Error: Dynamic Buffer Export Bytes unknown type");
         }
     }
     // write all strings
@@ -416,7 +416,7 @@ void DynamicBuffer<bufferCount>::ImportBytes(const Byte*& cur, uint8_t targetBuf
             targetBuffer[map.targetIndex] = std::make_any<bool>(serial::read_bool_be(cur));
             break;
         default:
-            DISPLAY_ERROR("Error: Dynamic Buffer Import Bytes unknown type");
+            THROW_ERROR("Error: Dynamic Buffer Import Bytes unknown type");
         }
     }
     for (size_t stringId = 0; stringId < stringCount; stringId++)

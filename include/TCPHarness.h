@@ -1,17 +1,28 @@
 #pragma once
 #include "../include/DertlibConfig.h"
 #include "../include/TripleBuffer.h"
-#include "DebugTracer.h"
-#include "DynamicBuffer.h"
+#include "../include/DebugTracer.h"
+#include "../include/DynamicBuffer.h"
+#include "../include/DebugTracer.h"
 
 #ifdef _WIN32
+    #define _WINSOCKAPI_
     #include <windows.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <stdlib.h>
     #include <stdio.h>
     #pragma comment (lib, "Ws2_32.lib")
+#else
+    #include <iostream>
+    #include <cstring>
+    #include <cerrno>
+    #include <unistd.h>
+    #include <arpa/inet.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
 #endif
+
 
 namespace dlnk
 {
@@ -19,74 +30,28 @@ namespace dlnk
 class TCPHarness
 {
 public:
-    void InitalizeSocket()
+    enum class AllocationDirection
     {
-        SCOPE_TRACE("TCPHarness::InitalizeSockets");
-#ifdef _WIN32
-        // Initialize Winsock
-        iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-        if (iResult != 0)
-            THROW_ERROR("WSAStartup failed with error: " + std::to_string(iResult) + "\n");
+        InBuffer,
+        OutBuffer
+    };
 
-        ZeroMemory(&hints, sizeof(hints));
-        hints.ai_family = AF_INET;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = IPPROTO_TCP;
-        hints.ai_flags = AI_PASSIVE;
+    void InitalizeSocket();
 
-        // Resolve the server address and port
-        iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-        if ( iResult != 0 ) {
-            WSACleanup();
-            THROW_ERROR("getaddrinfo failed with error: " + std::to_string(iResult) + "\n");
-        }
-
-        // Create a SOCKET for the server to listen for client connections.
-        ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-        if (ListenSocket == INVALID_SOCKET) {
-            freeaddrinfo(result);
-            WSACleanup();
-            THROW_ERROR("socket failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-        }
-
-        // Setup the TCP listening socket
-        iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-        if (iResult == SOCKET_ERROR) {
-            freeaddrinfo(result);
-            closesocket(ListenSocket);
-            WSACleanup();
-            THROW_ERROR("bind failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-        }
-
-        freeaddrinfo(result);
-
-        iResult = listen(ListenSocket, SOMAXCONN);
-        if (iResult == SOCKET_ERROR) {
-            closesocket(ListenSocket);
-            WSACleanup();
-            THROW_ERROR("listen failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-        }
-
-        ClientSocket = accept(ListenSocket, NULL, NULL);
-        if (ClientSocket == INVALID_SOCKET) {
-            closesocket(ListenSocket);
-            WSACleanup();
-            THROW_ERROR("accept failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-        }
-
-        closesocket(ListenSocket);
-#else
-        THROW_ERROR("Non-Windows TCP not implemented");
-#endif
-    }
-
-#ifdef _WIN32
-    ~TCPHarness()
-    {
-        closesocket(ClientSocket);
-        WSACleanup();
-    }
-#endif
+    void AllocateDouble(double*& ptr, AllocationDirection d);
+    void AllocateFloat(float*& ptr, AllocationDirection d);
+    void AllocateUInt8(uint8_t*& ptr, AllocationDirection d);
+    void AllocateUInt16(uint16_t*& ptr, AllocationDirection d);
+    void AllocateUInt32(uint32_t*& ptr, AllocationDirection d);
+    void AllocateUInt64(uint64_t*& ptr, AllocationDirection d);
+    void AllocateInt8(int8_t*& ptr, AllocationDirection d);
+    void AllocateInt16(int16_t*& ptr, AllocationDirection d);
+    void AllocateInt32(int32_t*& ptr, AllocationDirection d);
+    void AllocateInt64(int64_t*& ptr, AllocationDirection d);
+    void AllocateBool(bool*& ptr, AllocationDirection d);
+    void AllocateString(uint8_t& ptr, AllocationDirection d);
+    
+    ~TCPHarness();
 
 private:
     TripleBuffer RecivingBuffer;
@@ -101,6 +66,13 @@ private:
     // int iSendResult;
     // char recvbuf[DEFAULT_BUFLEN];
     // int recvbuflen = DEFAULT_BUFLEN;
+#else
+    int server_fd, client_fd;
+    struct sockaddr_in addr{};
+    socklen_t addr_len = sizeof(addr);
+    char buf[128];
+    int BACKLOG = 10;
+    int sock_fd;
 #endif
 };
 

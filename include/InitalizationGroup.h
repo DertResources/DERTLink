@@ -10,7 +10,7 @@
 #include <memory>
 #include <any>
 #include "../include/DataEntry.h"
-#include "../include/DynamicBuffer.h"
+#include "../include/TCPHarness.h"
 #include "../include/DeviceBuilder.h"
 
 namespace dlnk
@@ -20,7 +20,7 @@ class Device;
 class ManifestBuilder;
 struct ShortDev;
 
-using InitFuncType = std::function<void(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db)>;
+using InitFuncType = std::function<void(std::any& obj, ShortDev& sd, TCPHarness& tcp, DeviceBuilder& db)>;
 
 class InitalizationGroup
 {
@@ -42,7 +42,7 @@ public:
 
     Device& ExitInitalizationGroup();
 
-    void RunInitCmd(std::any& obj, ShortDev& sd, DynamicBuffer& dbf, DynamicBuffer& dbd, DeviceBuilder& db);
+    void RunInitCmd(std::any& obj, ShortDev& sd, TCPHarness& tcp, DeviceBuilder& db);
 
     std::string GetName();
 

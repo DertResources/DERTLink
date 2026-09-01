@@ -6,6 +6,7 @@
 #include "ObjectManager.h"
 #include "SerializeHelper.h"
 #include "../include/CommunicationHandler.h"
+#include "TCPHarness.h"
 #include <memory>
 #include <optional>
 
@@ -27,10 +28,8 @@ public:
     , MB{OM,
         DD,
         SDV,
-        DB_DesiredState,
-        DB_Feedback}
-    , DB_Feedback{}
-    , DB_DesiredState{}
+        TCP}
+    , TCP{}
     {}
     ManifestBuilder& GetManifestBuilder() {return MB;}
     DeviceDictonary& GetDeviceDictonary() {return DD;}
@@ -52,8 +51,7 @@ private:
     ShortDevVector SDV;
     ObjectManager   OM;
     ManifestBuilder MB;
-    DynamicBuffer   DB_Feedback;
-    DynamicBuffer   DB_DesiredState;
+    TCPHarness      TCP;
     ByteVector      BV;
 };
 

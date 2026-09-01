@@ -6,8 +6,9 @@
 #include "../include/DeviceBuilder.h"
 #include "../include/DeviceDictonary.h"
 #include "../include/DataEntry.h"
-#include "../include/DynamicBuffer.h"
 #include "../include/ObjectManager.h"
+#include "../include/TCPHarness.h"
+#include "DERTLink/include/TCPHarness.h"
 #include "SerializeHelper.h"
 #include <functional>
 
@@ -29,13 +30,11 @@ public:
     ManifestBuilder(ObjectManager& _OM,
                     DeviceDictonary& _DD,
                     ShortDevVector& _shortDeviceDictonary, 
-                    DynamicBuffer& _dbDesiredState, 
-                    DynamicBuffer& _dbFeedback)
+                    TCPHarness& _tcpHarness)
     : OM{_OM}
     , DD{_DD}
     , shortDeviceDictonary {_shortDeviceDictonary}
-    , dbDesiredState {_dbDesiredState}
-    , dbFeedback {_dbFeedback}
+    , tcpHarness {_tcpHarness}
     {}
 
     DeviceBuilder& BuildNewDevice(std::string deviceName);
@@ -77,9 +76,7 @@ private:
     ObjectManager& OM;
     DeviceDictonary& DD;
     ShortDevVector& shortDeviceDictonary;
-    DynamicBuffer& dbDesiredState;
-    DynamicBuffer& dbFeedback;
-
+    TCPHarness& tcpHarness;
     
 
 }; // class end

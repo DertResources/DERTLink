@@ -1,6 +1,8 @@
 #pragma once
 
-#define DEFAULT_PORT "5840"
+#define DEFAULT_PORT 5840
+#define STRINGIFY_(X) "#X"
+#define STRINGIFY(X) STRINGIFY_(X)
 
 // check if has rio include
 #if __has_include(<frc/RobotBase.h>)

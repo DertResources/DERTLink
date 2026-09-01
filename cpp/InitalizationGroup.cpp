@@ -6,7 +6,7 @@
 #include <variant>
 #include "../include/DataEntry.h"
 #include <any>
-#include "../include/DynamicBuffer.h"
+#include "../include/TCPHarness.h"
 #include "../include/DeviceBuilder.h"
 #include <utility>
 #include <deque>
@@ -56,12 +56,11 @@ Device& InitalizationGroup::ExitInitalizationGroup()
 
 void InitalizationGroup::RunInitCmd(std::any& obj,
                                     ShortDev& sd,
-                                    DynamicBuffer& dbf,
-                                    DynamicBuffer& dbd,
+                                    TCPHarness& tcp,
                                     DeviceBuilder& db)
 {
     SCOPE_TRACE("InitalizationGroup::RunInitCmd");
-    InitalizationCmd(obj, sd, dbf, dbd, db);
+    InitalizationCmd(obj, sd, tcp, db);
 }
 
 std::string InitalizationGroup::GetName()

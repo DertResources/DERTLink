@@ -80,7 +80,7 @@ void DeviceBuilder::ReadBuffer(const Byte*& cur)
                 case 10: AssignData(entryName, serial::read_double_be(cur)); break;
                 case 11: AssignData(entryName, serial::read_string   (cur)); break;
                 default:
-                    DISPLAY_ERROR("ManifestBuilder ReadBuffer function caught unknown type");
+                    THROW_ERROR("ManifestBuilder ReadBuffer function caught unknown type");
             }
         }
         else

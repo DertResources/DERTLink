@@ -45,7 +45,7 @@ namespace dlnk
         messageType = CM::ReadMessageType(cur);
         if(messageType != MT::HANDSHAKE_STEP_ONE)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Type");
+            THROW_ERROR("ERROR: Wrong Message Type");
             return false;
         }
         
@@ -53,7 +53,7 @@ namespace dlnk
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::DEVICE_DICTONARY)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            THROW_ERROR("ERROR: Wrong Message Body Signature");
             return false;
         }
         DeviceDictonary dd;
@@ -62,13 +62,13 @@ namespace dlnk
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::END_OF_MESSAGE)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            THROW_ERROR("ERROR: Wrong Message Body Signature");
             return false;
         }
 
         if(!DeviceDictonary::CompareDictonaries(dd, DD))
         {
-            DISPLAY_ERROR("ERROR: Device Dictonaries dont match");
+            THROW_ERROR("ERROR: Device Dictonaries dont match");
             return false;
         }
         
@@ -87,7 +87,7 @@ namespace dlnk
         messageType = CM::ReadMessageType(cur);
         if(messageType != MT::HANDSHAKE_STEP_TWO)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Type");
+            THROW_ERROR("ERROR: Wrong Message Type");
             return false;
         }
 
@@ -95,7 +95,7 @@ namespace dlnk
         messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::MANIFEST)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            THROW_ERROR("ERROR: Wrong Message Body Signature");
             return false;
         }
 
@@ -104,7 +104,7 @@ namespace dlnk
          messageBodySignature = CM::ReadMessageBodySignature(cur);
         if(messageBodySignature != MBS::END_OF_MESSAGE)
         {
-            DISPLAY_ERROR("ERROR: Wrong Message Body Signature");
+            THROW_ERROR("ERROR: Wrong Message Body Signature");
             return false;
         }
                 
