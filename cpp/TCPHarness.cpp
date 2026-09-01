@@ -5,6 +5,7 @@ namespace dlnk
 
 void TCPHarness::AllocateDouble(double*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateDouble");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateDouble(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -14,6 +15,7 @@ void TCPHarness::AllocateDouble(double*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateFloat(float*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateFloat");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateFloat(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -23,6 +25,7 @@ void TCPHarness::AllocateFloat(float*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateUInt8(uint8_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateUInt8");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateUInt8(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -32,6 +35,7 @@ void TCPHarness::AllocateUInt8(uint8_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateUInt16(uint16_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateUInt16");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateUInt16(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -41,6 +45,7 @@ void TCPHarness::AllocateUInt16(uint16_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateUInt32(uint32_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateUInt32");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateUInt32(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -50,6 +55,7 @@ void TCPHarness::AllocateUInt32(uint32_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateUInt64(uint64_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateUInt64");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateUInt64(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -59,6 +65,7 @@ void TCPHarness::AllocateUInt64(uint64_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateInt8(int8_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateInt8");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateInt8(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -68,6 +75,7 @@ void TCPHarness::AllocateInt8(int8_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateInt16(int16_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateInt16");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateInt16(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -77,6 +85,7 @@ void TCPHarness::AllocateInt16(int16_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateInt32(int32_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateInt32");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateInt32(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -86,6 +95,7 @@ void TCPHarness::AllocateInt32(int32_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateInt64(int64_t*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateInt64");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateInt64(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -95,6 +105,7 @@ void TCPHarness::AllocateInt64(int64_t*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateBool(bool*& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateBool");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateBool(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -104,6 +115,7 @@ void TCPHarness::AllocateBool(bool*& ptr, AllocationDirection d)
 };
 void TCPHarness::AllocateString(uint8_t& ptr, AllocationDirection d)
 {    
+    SCOPE_TRACE("TCPHarness::AllocateString");
     if(d == AllocationDirection::InBuffer)
         RecivingBuffer.AllocateString(ptr);
     else if(d == AllocationDirection::OutBuffer)
@@ -114,6 +126,7 @@ void TCPHarness::AllocateString(uint8_t& ptr, AllocationDirection d)
 
 TCPHarness::~TCPHarness()
 {
+    SCOPE_TRACE("TCPHarness::~TCPHarness");
 #ifdef _WIN32
     closesocket(ClientSocket);
     WSACleanup();

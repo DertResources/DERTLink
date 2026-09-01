@@ -6,6 +6,7 @@
 #include "../include/DebugTracer.h"
 
 #ifdef _WIN32
+    //this keeps windows.h from including winsock2
     #define _WINSOCKAPI_
     #include <windows.h>
     #include <winsock2.h>
