@@ -22,6 +22,7 @@
     #include <arpa/inet.h>
     #include <sys/socket.h>
     #include <netinet/in.h>
+    #include <netinet/tcp.h>
 #endif
 
 
@@ -38,6 +39,7 @@ public:
     };
 
     void InitalizeSocket();
+    void PollForClient();
 
     void AllocateDouble(double*& ptr, AllocationDirection d);
     void AllocateFloat(float*& ptr, AllocationDirection d);

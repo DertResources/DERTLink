@@ -124,17 +124,6 @@ void TCPHarness::AllocateString(uint8_t& ptr, AllocationDirection d)
         THROW_ERROR("AllocationDirection not handled");
 };
 
-TCPHarness::~TCPHarness()
-{
-    SCOPE_TRACE("TCPHarness::~TCPHarness");
-#ifdef _WIN32
-    closesocket(ClientSocket);
-    WSACleanup();
-#else
-    close(sock_fd);
-#endif
-}
-
 void TCPHarness::InitalizeSocket()
 {
         SCOPE_TRACE("TCPHarness::InitalizeSockets");
@@ -175,22 +164,6 @@ void TCPHarness::InitalizeSocket()
     }
 
     freeaddrinfo(result);
-
-    iResult = listen(ListenSocket, SOMAXCONN);
-    if (iResult == SOCKET_ERROR) {
-        closesocket(ListenSocket);
-        WSACleanup();
-        THROW_ERROR("listen failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-    }
-
-    ClientSocket = accept(ListenSocket, NULL, NULL);
-    if (ClientSocket == INVALID_SOCKET) {
-        closesocket(ListenSocket);
-        WSACleanup();
-        THROW_ERROR("accept failed with error: " + std::to_string(WSAGetLastError()) + "\n");
-    }
-
-    closesocket(ListenSocket);
 #else
     // Create socket
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -209,7 +182,39 @@ void TCPHarness::InitalizeSocket()
 
     if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
         THROW_ERROR("bind() failed");
+#endif
+}
 
+void TCPHarness::PollForClient()
+{
+#if _WIN32
+    iResult = listen(ListenSocket, SOMAXCONN);
+    if (iResult == SOCKET_ERROR) {
+        closesocket(ListenSocket);
+        WSACleanup();
+        THROW_ERROR("listen failed with error: " + std::to_string(WSAGetLastError()) + "\n");
+    }
+
+    ClientSocket = accept(ListenSocket, NULL, NULL);
+    if (ClientSocket == INVALID_SOCKET) {
+        closesocket(ListenSocket);
+        WSACleanup();
+        THROW_ERROR("accept failed with error: " + std::to_string(WSAGetLastError()) + "\n");
+    }
+
+    // Disable Nagle's on the communication socket
+    BOOL nodelay = TRUE;
+    iResult = setsockopt(ClientSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&nodelay, sizeof(nodelay));
+    if(iResult == SOCKET_ERROR)
+    {
+        closesocket(ListenSocket);
+        WSACleanup();
+        THROW_ERROR("setsockopt failed with error: " + std::to_string(WSAGetLastError()) + "\n");
+    }
+
+    // close the listen as we now just have the client
+    closesocket(ListenSocket);
+#else
     // Listen
     if (listen(server_fd, BACKLOG) < 0)
         THROW_ERROR("listen() failed");
@@ -220,8 +225,27 @@ void TCPHarness::InitalizeSocket()
     client_fd = accept(server_fd, (struct sockaddr*)&addr, &addr_len);
     if (client_fd < 0) 
         THROW_ERROR("accept() failed");
+
+    // Disable Nagle's on the communication socket
+
+    bool nodelay = true;
+    if(setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (bool*)&nodelay, sizeof(nodelay)) < 0)
+        THROW_ERROR("setsockopt() failed");
+
+    
     std::string strTmp = inet_ntoa(addr.sin_addr);
     DISPLAY_DEBUG("Client connected: " + strTmp + ":" + std::to_string(ntohs(addr.sin_port)));
+#endif
+}
+
+TCPHarness::~TCPHarness()
+{
+    SCOPE_TRACE("TCPHarness::~TCPHarness");
+#ifdef _WIN32
+    closesocket(ClientSocket);
+    WSACleanup();
+#else
+    close(sock_fd);
 #endif
 }
 
