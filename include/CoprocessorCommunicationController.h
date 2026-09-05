@@ -29,7 +29,7 @@ public:
         DD,
         SDV,
         TCP}
-    , TCP{}
+    , TCP{TCPHarness::ConnectionType::Client}
     {}
     ManifestBuilder& GetManifestBuilder() {return MB;}
     DeviceDictonary& GetDeviceDictonary() {return DD;}

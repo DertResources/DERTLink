@@ -28,7 +28,7 @@ public:
         DD,
         SDV,
         TCP}
-    , TCP{}
+    , TCP{TCPHarness::ConnectionType::Server}
     {}
     
     

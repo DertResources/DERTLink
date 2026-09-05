@@ -1,6 +1,8 @@
 #pragma once
 
 #define DEFAULT_PORT 5840
+#define SERVER_IP "192.168.0.12"
+
 #define STRINGIFY_(X) "#X"
 #define STRINGIFY(X) STRINGIFY_(X)
 
